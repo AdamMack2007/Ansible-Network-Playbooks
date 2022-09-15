@@ -1,0 +1,7 @@
+---
+- name: Configure ACL
+  hosts: all
+  gather_facts: no
+
+  roles:
+    - config_acl

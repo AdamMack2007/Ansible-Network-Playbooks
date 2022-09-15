@@ -1,0 +1,114 @@
+---
+- name: Set primary device
+  set_fact:
+    primary_f5: "{{ ansible_host }}"
+  when: primary is defined and (primary == 'yes')
+
+- name: Set secondary device
+  set_fact:
+    secondary_f5: "{{ ansible_host }}"
+  when: primary is defined and (primary == 'no')
+
+- name: Create HA VLAN
+  f5networks.f5_modules.bigip_vlan:
+    name: HA
+    tag: "{{ f5_ha_vlan }}"
+    untagged_interfaces: "{{ item }}"
+    provider: "{{ provider }}"
+  loop: "{{ f5_ha_ports }}"
+  delegate_to: localhost
+
+- name: Create HA Self-IP Primary
+  f5networks.f5_modules.bigip_selfip:
+    address: "{{ f5_ha_primary_ip }}"
+    netmask: "255.255.255.0"
+    allow_service: all
+    name: HA
+    vlan: HA
+    provider: "{{ provider }}"
+  delegate_to: localhost
+  when: primary_f5 is defined
+
+- name: Create HA Self-IP Secondary
+  f5networks.f5_modules.bigip_selfip:
+    address: "{{ f5_ha_secondary_ip }}"
+    netmask: "255.255.255.0"
+    allow_service: all
+    name: HA
+    vlan: HA
+    provider: "{{ provider }}"
+  delegate_to: localhost
+  when: secondary_f5 is defined
+
+- name: Configure F5 HA Primary
+  f5networks.f5_modules.bigip_device_connectivity:
+    config_sync_ip: "{{ f5_ha_primary_ip }}"
+    mirror_primary_address: "{{ f5_ha_primary_ip }}"
+    unicast_failover:
+      - address: "{{ f5_ha_primary_ip }}"
+      - address: "{{ ansible_host }}"
+    provider: "{{ provider }}"
+  delegate_to: localhost
+  when: primary_f5 is defined
+
+- name: Configure F5 HA Secondary
+  f5networks.f5_modules.bigip_device_connectivity:
+    config_sync_ip: "{{ f5_ha_secondary_ip }}"
+    mirror_primary_address: "{{ f5_ha_secondary_ip }}"
+    unicast_failover:
+      - address: "{{ f5_ha_secondary_ip }}"
+      - address: "{{ ansible_host }}"
+    provider: "{{ provider }}"
+  delegate_to: localhost
+  when: secondary_f5 is defined
+
+- name: Add cluster peer to device trust
+  f5networks.f5_modules.bigip_device_trust:
+    peer_server: "{{ item.ip }}"
+    peer_hostname: "{{ item.name }}"
+    peer_user: "admin"
+    peer_password: "admin"
+    provider: "{{ provider }}"
+  loop:
+    - { name: "{{ ha_peer }}", ip: "{{ hostvars[ha_peer]['ansible_host'] }}" }
+  delegate_to: localhost
+
+- name: Create HA sync-group
+  f5networks.f5_modules.bigip_device_group:
+    name: HA
+    auto_sync: yes
+    type: sync-failover
+    network_failover: yes
+    provider: "{{ provider }}"
+  delegate_to: localhost
+
+- name: Add hosts to HA sync-group
+  f5networks.f5_modules.bigip_device_group_member:
+    name: "{{ item }}"
+    device_group: HA
+    provider: "{{ provider }}"
+  loop:
+    - "{{ inventory_hostname }}"
+    - "{{ hostvars[ha_peer]['inventory_hostname'] }}"
+  delegate_to: localhost
+
+- name: Sync Primary to group HA
+  f5networks.f5_modules.bigip_configsync_action:
+    device_group: HA
+    sync_device_to_group: yes
+    provider: "{{ provider }}"
+  when: primary_f5 is defined
+  delegate_to: localhost
+
+- name: Ensure primary unit is active
+  f5networks.f5_modules.bigip_command:
+    provider: "{{ provider }}"
+    commands: run sys failover standby
+  when: secondary_f5 is defined
+  delegate_to: localhost
+
+- name: Save Configuration
+  f5networks.f5_modules.bigip_config:
+    save: yes
+    provider: "{{ provider }}"
+  delegate_to: localhost

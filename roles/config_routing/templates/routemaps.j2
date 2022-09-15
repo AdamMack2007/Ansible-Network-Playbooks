@@ -1,0 +1,6 @@
+{% if route_maps %}
+{% for routemap in route_maps %}
+route-map {{ routemap['name'] }} {{ routemap['action'] }} {{ routemap['order'] }}
+ match ip address {{ routemap['match_ip'] }}
+{% endfor %}
+{% endif %}

@@ -1,0 +1,5 @@
+- name: Configure Nexus NTP
+  cisco.nxos.nxos_ntp_global:
+    state: replaced
+    config: "{{ ntp_config }}"
+  register: nxos_ntp_status

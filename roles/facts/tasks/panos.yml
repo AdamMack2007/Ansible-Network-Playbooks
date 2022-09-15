@@ -1,0 +1,10 @@
+- name: Get facts
+  paloaltonetworks.panos.panos_facts:
+    provider: "{{ provider }}"
+    gather_subset: ["config", "interfaces", "system"]
+  delegate_to: localhost
+
+- name: Set Palo Alto serial as fact
+  set_fact:
+    ansible_net_serialnum: "{{ ansible_net_serial }}"
+  delegate_to: localhost

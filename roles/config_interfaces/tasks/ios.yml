@@ -1,0 +1,53 @@
+- name: Set Interface Dictionary Facts
+  set_fact:
+    port_config: "{{ interface_config | json_query('[*].{name: name, enabled: enabled, description: description }') }}"
+    trunk_config: "{{ interface_config | json_query('[?trunk].{name: name, trunk: trunk, mode: mode}') }}"
+    access_config: "{{ interface_config | json_query('[?access].{name: name, access: access, mode: mode}') }}"
+    layer3_config: "{{ interface_config | json_query('[?ip_address].{name: name, ipv4: [{address: ip_address}]}') }}"
+    portchannel_config: "{{ interface_config | json_query('[?members].{name: name, members: members, mode: mode}') }}"
+
+- name: Configure VLANs
+  cisco.ios.ios_vlans:
+    config: "{{ vlans }}"
+    state: merged
+  when: vlans is defined
+
+- name: Configure Interface Settings
+  cisco.ios.ios_interfaces:
+    config: "{{ port_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - port_config | length
+
+- name: Configure L3 Interfaces
+  cisco.ios.ios_l3_interfaces:
+    config: "{{ layer3_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - layer3_config | length
+
+- name: Configure Port Channels
+  cisco.ios.ios_lag_interfaces:
+    config: "{{ portchannel_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - portchannel_config | length
+
+- name: Configure VLANs on Trunk Interfaces
+  cisco.ios.ios_l2_interfaces:
+    config: "{{ trunk_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - trunk_config | length
+
+- name: Configure VLANs on Access Interfaces
+  cisco.ios.ios_l2_interfaces:
+    config: "{{ access_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - access_config | length

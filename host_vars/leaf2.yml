@@ -1,0 +1,90 @@
+mlag_ip: 192.168.100.2
+switch_type: leaf
+loopback1_ip: 10.0.255.12/32
+### Interfaces ###
+vlans:
+  - name: MLAG_PEERLINK
+    vlan_id: 4094
+  - name: LEAF1_LINK
+    vlan_id: 4091
+
+interface_config:
+  - name: Loopback0
+    ip_address: 10.0.250.12/32
+    enabled: True
+
+  - name: Loopback1
+    ip_address: 10.0.255.12/32
+    enabled: True
+
+  - name: vlan4094
+    enabled: True
+    description: MLAG_PEERLINK
+    ip_address: 192.168.100.2/30
+
+  - name: vlan4091
+    enabled: True
+    description: LEAF1_LINK
+    ip_address: 10.0.3.1/31
+
+  - name: Ethernet1
+    enabled: True
+    ip_address: 10.0.1.3/31
+    description: Spine1 Eth2
+
+  - name: Ethernet2
+    enabled: True
+    ip_address: 10.0.2.3/31
+    description: Spine2 Eth2
+
+  - name: Ethernet3
+    enabled: False
+
+  - name: Ethernet4
+    enabled: False
+
+  - name: Ethernet5
+    ip_address: 10.0.0.4/24
+    enabled: True
+
+  - name: Ethernet6
+    description: MLAG PeerLink
+    enabled: True
+
+  - name: Ethernet7
+    description: MLAG PeerLink
+    enabled: True
+
+  - name: Ethernet8
+    enabled: False
+
+  - name: Port-Channel100
+    description: MLAG PeerLink
+    enabled: True
+    portchannel_id: 100
+    mlag_peerlink: True
+    trunk:
+      trunk_allowed_vlans:
+        - "4094"
+        - "4091"
+    members:
+      - member: Ethernet6
+        mode: active
+      - member: Ethernet7
+        mode: active
+
+### BGP ###
+bgp_config: |
+  router bgp 64513
+    neighbor 10.0.1.2 remote-as 64512
+    neighbor 10.0.1.2 description Spine1
+    neighbor 10.0.1.2 maximum-routes 12000
+    neighbor 10.0.2.2 remote-as 64512
+    neighbor 10.0.2.2 description Spine2
+    neighbor 10.0.2.2 maximum-routes 12000
+    neighbor 10.0.3.0 remote-as 64513
+    neighbor 10.0.3.0 description Leaf1
+    neighbor 10.0.3.0 maximum-routes 12000
+    network 10.0.100.0/24
+    router-id 10.0.250.12
+ 

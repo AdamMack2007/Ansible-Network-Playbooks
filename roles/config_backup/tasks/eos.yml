@@ -1,0 +1,6 @@
+- name: Backup Arista Devices
+  arista.eos.eos_config:
+    backup: yes
+    backup_options:
+      filename: "{{ inventory_hostname }}.cfg"
+      dir_path: "{{ network_backup_dir }}"

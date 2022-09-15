@@ -1,0 +1,7 @@
+---
+- name: Configure Routing
+  hosts: all
+  gather_facts: no
+
+  roles:
+    - config_routing

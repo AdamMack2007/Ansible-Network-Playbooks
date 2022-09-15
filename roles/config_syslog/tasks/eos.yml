@@ -1,0 +1,4 @@
+- name: Configure EOS Syslog
+  arista.eos.eos_logging_global:
+    state: replaced
+    config: "{{ syslog_config }}"

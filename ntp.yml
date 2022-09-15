@@ -1,0 +1,8 @@
+---
+- name: Configure NTP
+  hosts: all
+  connection: httpapi
+  gather_facts: no
+
+  roles:
+    - config_ntp

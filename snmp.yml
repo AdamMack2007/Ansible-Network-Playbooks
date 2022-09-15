@@ -1,0 +1,7 @@
+---
+- name: Configure SNMP
+  hosts: all
+  gather_facts: no
+
+  roles:
+    - config_snmp

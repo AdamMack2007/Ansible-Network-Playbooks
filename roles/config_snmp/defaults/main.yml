@@ -1,0 +1,7 @@
+snmp_servers:
+  - 192.168.10.131
+
+snmp_group: "SNMP_V3"
+snmp_community: "LAB"
+snmp_user: "librenms"
+snmp_password: "libresnmp"

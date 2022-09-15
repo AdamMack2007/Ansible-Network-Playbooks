@@ -1,0 +1,4 @@
+- name: Configure Nexus Syslog
+  cisco.nxos.nxos_logging_global:
+    state: replaced
+    config: "{{ syslog_config }}"

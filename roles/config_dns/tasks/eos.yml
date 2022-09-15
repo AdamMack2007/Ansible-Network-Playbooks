@@ -1,0 +1,10 @@
+- name: Get Existing EOS DNS Servers
+  arista.eos.eos_command:
+    commands: "sh run | i ip name-server"
+  register: current_dns
+
+- name: Configure EOS DNS Servers
+  arista.eos.eos_config:
+    src: templates/eos_dns.j2
+    replace: line
+    save_when: always

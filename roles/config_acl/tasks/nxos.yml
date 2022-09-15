@@ -1,0 +1,14 @@
+- name: Create NXOS Management ACL
+  cisco.nxos.nxos_acl:
+    name: "{{ management_acl.name }}"
+    seq: 10
+    action: permit
+    proto: tcp
+    src: "{{ management_acl.source }}"
+    dest: any
+    state: present
+
+- name: Apply NXOS Management ACL
+  cisco.nxos.nxos_config:
+    lines: "access-class {{ management_acl.name }} in"
+    parents: line vty

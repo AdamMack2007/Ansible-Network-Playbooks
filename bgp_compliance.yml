@@ -1,0 +1,11 @@
+---
+- name: Configure BGP
+  hosts: all
+  connection: httpapi
+  gather_facts: no
+
+  tasks:
+    - name: Include BGP Role
+      import_role:
+        name: snow_compliance
+        tasks_from: bgp_main.yml

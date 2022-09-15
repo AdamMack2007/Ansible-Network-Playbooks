@@ -1,0 +1,3 @@
+- name: Gather all facts
+  cisco.asa.asa_facts:
+    gather_subset: all

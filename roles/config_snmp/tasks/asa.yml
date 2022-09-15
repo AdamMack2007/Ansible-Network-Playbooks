@@ -1,0 +1,11 @@
+- name: Gather ASA Facts
+  cisco.asa.asa_command:
+    commands:
+      - show run snmp-server
+  register: current_snmp
+
+- name: Configure ASA SNMP Servers
+  cisco.asa.asa_config:
+    src: templates/asa_snmp.j2
+    replace: line
+    save: yes

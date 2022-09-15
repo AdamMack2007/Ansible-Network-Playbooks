@@ -1,0 +1,17 @@
+- name: Configure Admin password
+  cisco.asa.asa_config:
+    lines:
+      - "username admin password {{ global_pass }} privilege 15"
+      - "username amack password {{ global_pass }} privilege 15"
+
+- name: Get Existing Users
+  cisco.asa.asa_command:
+    commands:
+      - "show run username"
+  register: existing_users
+  when: purge_users | bool
+
+- name: Remove All Other Users
+  cisco.asa.asa_config:
+    src: templates/asa_purge.j2
+  when: purge_users | bool

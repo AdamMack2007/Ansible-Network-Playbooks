@@ -1,0 +1,35 @@
+---
+- name: Generate ISE TACACS Key
+  set_fact:
+    ise_pass: "{{ lookup('password', '/dev/null length=18 chars=ascii_letters,digits') }}"
+    cacheable: yes
+  when: ise_pass is not defined
+
+- name: Ensure TACACS+ feature is enabled
+  cisco.nxos.nxos_feature:
+    feature: "tacacs+"
+    state: enabled
+
+- name: Create TACACS Server Settings
+  cisco.nxos.nxos_aaa_server:
+    server_type: "tacacs"
+    server_timeout: "8"
+    deadtime: "20"
+
+- name: Create TACACS Servers
+  cisco.nxos.nxos_aaa_server_host:
+    state: "present"
+    server_type: "tacacs"
+    key: "{{ ise_pass }}"
+    encrypt_type: "0"
+    address: "{{ item }}"
+  with_items: "{{ aaa_servers }}"
+
+- name: Create ISE AAA Group
+  cisco.nxos.nxos_config:
+    lines:
+      - "server {{ item }}"
+      - "use-vrf management"
+      - "source-interface mgmt0"
+    parents: aaa group server tacacs+ ISE
+  with_items: "{{ aaa_servers }}"

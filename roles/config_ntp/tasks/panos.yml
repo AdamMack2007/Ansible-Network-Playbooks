@@ -1,0 +1,6 @@
+- name: Configure PanOS NTP Servers
+  paloaltonetworks.panos.panos_mgtconfig:
+    provider: "{{ provider }}"
+    ntp_server_primary: "{{ ntp_servers[0] }}"
+  delegate_to: localhost
+  register: panos_ntp_status

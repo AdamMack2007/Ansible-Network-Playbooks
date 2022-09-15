@@ -1,0 +1,23 @@
+ansible_connection: network_cli
+manufacturer: Cisco
+nxos_features:
+  - "privilege"
+  - "vpc"
+  - "lacp"
+  - "lldp"
+  - "tacacs+"
+
+ntp_vrf: management
+
+syslog_config:
+  console:
+    severity: error
+  monitor:
+    severity: warning
+  hosts:
+    - host: "{{ syslog_servers.0 }}"
+      port: "{{ syslog_port }}"
+      severity: alert
+      use_vrf: management
+  origin_id:
+    hostname: True

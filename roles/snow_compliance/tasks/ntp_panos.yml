@@ -1,0 +1,22 @@
+- name: Get Palo Alto NTP Status
+  import_role:
+    name: config_ntp
+    tasks_from: panos
+  check_mode: true
+
+- name: Set Palo Alto Compliance Facts
+  set_fact:
+    problem_description: "The NTP configuration on this device is out of compliance"
+    short_description: "{{ inventory_hostname | upper }} ntp configuration out of compliance"
+    ntp_compliant: "No"
+  when: (ansible_network_os == 'panos' and panos_ntp_status.changed)
+  delegate_to: localhost
+
+- name: Create SNOW Problem Ticket
+  include_tasks:
+    file: snow_ticket.yml
+  when: panos_ntp_status.changed
+
+- name: Update SNOW CMDB
+  include_tasks:
+    file: snow_cmdb.yml

@@ -1,0 +1,19 @@
+- name: Get Existing IOS NTP Servers
+  cisco.ios.ios_command:
+    commands:
+      - "show run | i ntp server"
+  register: current_ntp
+  when: inventory_hostname == '3750'
+
+- name: Configure IOS NTP Servers
+  cisco.ios.ios_config:
+    src: templates/ios_ntp.j2
+    save_when: changed
+  when: inventory_hostname == '3750'
+
+- name: Configure IOS NTP Servers
+  cisco.ios.ios_ntp_global:
+    config: "{{ ntp_config }}"
+    state: replaced
+  when: inventory_hostname != '3750'
+  register: ios_ntp_status

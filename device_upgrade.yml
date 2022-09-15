@@ -1,0 +1,8 @@
+---
+- name: Upgrade Device Firmware
+  hosts: all
+  gather_facts: no
+  serial: "{{ serial_amount | default(0) }}" #For demo purposes, rolling upgrade of 1 device at a time
+
+  roles:
+    - device_upgrade

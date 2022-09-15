@@ -1,0 +1,5 @@
+---
+# tasks file for roles/config_vpn
+- name: Create VPN Config
+  cisco.asa.asa_config:
+    src: templates/asa_vpn.j2

@@ -1,0 +1,10 @@
+galaxy_info:
+  author: Adam Mack
+  description: Configure VPNs for network devices
+  company: Red Hat
+  license: "license (BSD, MIT)"
+  min_ansible_version: 2.7
+  galaxy_tags:
+    - network
+    - asa
+    - cisco

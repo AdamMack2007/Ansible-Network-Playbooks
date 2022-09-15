@@ -1,0 +1,10 @@
+- name: Get Existing SNMP Servers
+  arista.eos.eos_command:
+    commands: "show run | i snmp-server host"
+  register: current_snmp
+
+- name: Configure EOS SNMP
+  arista.eos.eos_config:
+    src: eos_snmp.j2
+    replace: line
+    save_when: changed

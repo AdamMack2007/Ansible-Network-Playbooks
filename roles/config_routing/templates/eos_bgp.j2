@@ -1,0 +1,31 @@
+ip routing
+
+router bgp {{ bgp_as }}
+  router-id {{ bgp_id }}
+ bgp log-neighbor-changes
+ {% if bgp_networks | default(false) %}
+ {% for network in bgp_networks %}
+ network {{ network }}
+ {% endfor %}
+ {% endif %}
+ {% if bgp_redistribute | default(false) %}
+ {% for redistribute in bgp_redistribute %}
+ redistribute {{ redistribute['name'] }} route-map {{ redistribute['route_map'] }}
+ {% endfor %}
+ {% endif %}
+ {% for neighbor in bgp_neighbors %}
+ neighbor {{ neighbor['neighbor'] | ipaddr('address') }} remote-as {{ neighbor['remote_as'] }}
+ {% if 'password' in neighbor %}
+ neighbor {{ neighbor['neighbor'] | ipaddr('address') }} password {{ neighbor['password'] }}
+ {% endif %}
+ neighbor {{ neighbor['neighbor'] | ipaddr('address') }} bfd
+ {% if 'route_map' in neighbor %}
+ neighbor {{ neighbor['neighbor'] }} route-map {{ neighbor['route_map']['name'] }} {{ neighbor['route_map']['direction'] }}
+ {% endif %}
+ {% if 'update_source' in neighbor%}
+ neighbor {{ neighbor['neighbor'] }} update-source {{ neighbor['update_source'] }}
+ {% endif %}
+ {% if 'description' in neighbor%}
+ neighbor {{ neighbor['neighbor'] }} update-source {{ neighbor['description'] }}
+ {% endif %}
+ {% endfor %}

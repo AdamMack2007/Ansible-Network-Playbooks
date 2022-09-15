@@ -1,0 +1,21 @@
+- name: Get F5 NTP Status
+  import_role:
+    name: config_ntp
+    tasks_from: f5
+  check_mode: true
+
+- name: Set F5 Compliance Facts
+  set_fact:
+    problem_description: "The NTP configuration on this device is out of compliance"
+    short_description: "{{ inventory_hostname | upper }} ntp configuration out of compliance"
+    ntp_compliant: "No"
+  when: (ansible_network_os == 'f5' and f5_ntp_status.changed)
+
+- name: Create SNOW Problem Ticket
+  include_tasks:
+    file: snow_ticket.yml
+  when: f5_ntp_status.changed
+
+- name: Update SNOW CMDB
+  include_tasks:
+    file: snow_cmdb.yml

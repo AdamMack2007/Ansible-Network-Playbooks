@@ -1,0 +1,4 @@
+---
+# tasks file for config_syslog
+- name: "Include Syslog Tasks"
+  include_tasks: "{{ ansible_network_os }}.yml"

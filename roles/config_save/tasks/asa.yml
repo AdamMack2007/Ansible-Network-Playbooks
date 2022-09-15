@@ -1,0 +1,3 @@
+- name: Save Configuration
+  cisco.asa.asa_config:
+    save: yes

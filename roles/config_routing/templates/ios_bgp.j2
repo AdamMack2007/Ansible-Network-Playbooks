@@ -1,0 +1,32 @@
+router bgp {{ bgp_as }}
+ bgp router-id {{ bgp_router_id }}
+ bgp log-neighbor-changes
+ {% if bgp_networks %}
+ {% for network in bgp_networks %}
+ network {{ network | ipaddr('network') }} mask {{ network | ipaddr('netmask') }}
+ {% endfor %}
+ {% endif %}
+ {% if bgp_agg_addresses %}
+ {% for network in bgp_agg_addresses %}
+ aggregate-address {{ network | ipaddr('network') }} {{ network | ipaddr('netmask') }} summary-only
+ {% endfor %}
+ {% endif %}
+ {% if bgp_redistribute %}
+ {% for redistribute in bgp_redistribute %}
+ redistribute {{ redistribute['name'] }} route-map {{ redistribute['route_map'] }}
+ {% endfor %}
+ {% endif %}
+ {% for neighbor in bgp_neighbors %}
+ neighbor {{ neighbor['neighbor'] }} remote-as {{ neighbor['remote_as'] }}
+ neighbor {{ neighbor['neighbor'] }} password {{ neighbor['password'] }}
+ neighbor {{ neighbor['neighbor'] }} fall-over bfd
+ {% if neighbor['route_map'] %}
+ neighbor {{ neighbor['neighbor'] }} route-map {{ neighbor['route_map']['name'] }} {{ neighbor['route_map']['direction'] }}
+ {% endif %}
+ {% if neighbor['update_source']%}
+ neighbor {{ neighbor['neighbor'] }} update-source {{ neighbor['update_source'] }}
+ {% endif %}
+ {% if neighbor['description']%}
+ neighbor {{ neighbor['neighbor'] }} update-source {{ neighbor['description'] }}
+ {% endif %}
+ {% endfor %}

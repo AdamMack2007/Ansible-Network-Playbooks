@@ -1,0 +1,33 @@
+---
+- name: Get F5 Facts
+  f5networks.f5_modules.bigip_device_info:
+    gather_subset:
+      - system-db
+      - system-info
+    provider: "{{ provider }}"
+  register: f5_facts
+  delegate_to: localhost
+
+- name: Get F5 SSL Facts
+  f5networks.f5_modules.bigip_device_info:
+    gather_subset:
+      - ssl-certs
+    provider: "{{ provider }}"
+  register: f5_certs
+  delegate_to: localhost
+
+- name: Print Certs and Dates
+  debug:
+    msg: "Name: {{ item.name }}
+      Expiration: {{ item.expiration_date }}"
+  loop: "{{ f5_certs.ssl_certs }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Set F5 Facts
+  set_fact:
+    ansible_net_serialnum: "{{ f5_facts.system_info.chassis_serial }}"
+    ansible_net_model: "{{ f5_facts.system_info.platform }}"
+    ansible_net_hostname: "{{ inventory_hostname }}"
+    ansible_net_version: "{{ f5_facts.system_info.product_version }}"
+    cacheable: yes

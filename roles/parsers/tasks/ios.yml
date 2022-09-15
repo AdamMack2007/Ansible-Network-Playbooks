@@ -1,0 +1,17 @@
+- name: Parse IOS Interface Stats
+  ansible.netcommon.cli_parse:
+    command: show interfaces
+    parser:
+      name: ansible.netcommon.pyats
+    set_fact: interfaces
+#- name: Create HTML report
+#  template:
+#    src: ios_interface.j2
+#    dest: test.html
+- name: Send Mattermost Message
+  community.general.mattermost:
+    url: "{{ mattermost_url }}"
+    api_key: "{{ mattermost_token }}"
+    channel: "{{ mattermost_channel }}"
+    text: "{{ lookup('template','ios_interface_errors.j2') }}"
+    validate_certs: no

@@ -1,0 +1,28 @@
+- name: Parse EOS Interface Stats
+  ansible.netcommon.cli_parse:
+    command: show interfaces | json
+    parser:
+      name: ansible.netcommon.json
+    set_fact: interfaces
+
+- name: Parse EOS BGP Stats
+  ansible.netcommon.cli_parse:
+    command: show ip bgp sum | json
+    parser:
+      name: ansible.netcommon.json
+    set_fact: bgp
+
+- name: Parse EOS MLAG Stats
+  ansible.netcommon.cli_parse:
+    command: show mlag | json
+    parser:
+      name: ansible.netcommon.json
+    set_fact: mlag_stats
+
+- name: Send Mattermost Message
+  community.general.mattermost:
+    url: "{{ mattermost_url }}"
+    api_key: "{{ mattermost_token }}"
+    channel: "{{ mattermost_channel }}"
+    text: "{{ lookup('template','eos_stats.j2') }}"
+    validate_certs: no

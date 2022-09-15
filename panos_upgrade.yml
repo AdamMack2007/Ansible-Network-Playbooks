@@ -1,0 +1,6 @@
+- name: Download and Install Palo Alto Updates
+  hosts: all
+  gather_facts: no
+
+  roles:
+    - device_upgrade

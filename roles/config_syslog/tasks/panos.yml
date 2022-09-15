@@ -1,0 +1,15 @@
+- name: Create Panos Syslog Profile
+  paloaltonetworks.panos.panos_syslog_profile:
+    provider: "{{ provider }}"
+    name: "SYSLOG"
+  delegate_to: localhost
+
+- name: Create Panos Syslog Server
+  paloaltonetworks.panos.panos_syslog_server:
+    provider: "{{ provider }}"
+    syslog_profile: "SYSLOG"
+    name: "SYSLOG_{{ item }}"
+    server: "{{ item }}"
+    syslog_port: "{{ syslog_port }}"
+  loop: "{{ syslog_servers }}"
+  delegate_to: localhost

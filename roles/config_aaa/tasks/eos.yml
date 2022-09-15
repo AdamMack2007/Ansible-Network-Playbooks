@@ -1,0 +1,12 @@
+- name: Generate AAA TACACS Key
+  set_fact:
+    aaa_key: "{{ lookup('password', '/dev/null length=18 chars=ascii_letters,digits') }}"
+    cacheable: yes
+  when:
+    - aaa_key is not defined
+    - aaa_create_key|bool
+
+- name: Configure AAA Servers
+  arista.eos.eos_config:
+    src: templates/eos_aaa.j2
+    save_when: changed

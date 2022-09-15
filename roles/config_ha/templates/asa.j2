@@ -1,0 +1,24 @@
+interface GigabitEthernet0/5
+  no shut
+
+{% if ha_primary==true %}
+failover lan interface failover GigabitEthernet0/5
+failover interface ip failover 10.255.255.1 255.255.255.252 standby 10.255.255.2
+failover lan key ABC123
+failover lan unit primary
+failover
+failover link failover GigabitEthernet0/5
+
+failover poll 1 hol 3
+failover poll interface 3
+interface GigabitEthernet0/5
+failover poll interface 3
+
+{% else %}
+failover lan interface failover GigabitEthernet0/5
+failover interface ip failover 10.255.255.1 255.255.255.252 standby 10.255.255.2
+failover lan key ABC123
+failover lan unit secondary
+failover
+failover link failover GigabitEthernet0/5
+{% endif %}

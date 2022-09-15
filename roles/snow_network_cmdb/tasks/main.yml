@@ -1,0 +1,49 @@
+---
+- name: Include Facts Role
+  ansible.builtin.import_role:
+    name: facts
+
+- name: Retrieve all configuration items
+  servicenow.itsm.configuration_item_info:
+    instance: "{{ instance }}"
+    sys_class_name: u_cmdb_ci_network_devices
+  register: result
+  run_once: true
+  delegate_to: localhost
+
+- name: Set CI Facts
+  ansible.builtin.set_fact:
+    device_list: "{{ result.records | json_query('[*].name') }}"
+    device_info: "{{ result.records | json_query(device_info_query) }}"
+  delegate_to: localhost
+
+- name: Create CI
+  servicenow.itsm.configuration_item:
+    instance: "{{ instance }}"
+    name: "{{ inventory_hostname }}"
+    serial_number: "{{ ansible_net_serialnum }}"
+    sys_class_name: u_cmdb_ci_network_devices
+    category: Network Device
+    other:
+      manufacturer: "{{ manufacturer | default(omit) }}"
+      firmware_version: "{{ ansible_net_version }}"
+      model_id: "{{ ansible_net_model | default(omit) }}"
+  when: inventory_hostname not in device_list
+  delegate_to: localhost
+
+- name: Update CI
+  servicenow.itsm.configuration_item:
+    instance: "{{ instance }}"
+    name: "{{ inventory_hostname }}"
+    serial_number: "{{ ansible_net_serialnum }}"
+    sys_class_name: u_cmdb_ci_network_devices
+    sys_id: "{{ device_info[0].sys_id | default(omit) }}"
+    category: Network Device
+    other:
+      manufacturer: "{{ manufacturer | default(omit) }}"
+      firmware_version: "{{ ansible_net_version }}"
+      model_id: "{{ ansible_net_model | default(omit) }}"
+  when:
+    - inventory_hostname in device_list
+    - device_info[0].sys_id|length
+  delegate_to: localhost

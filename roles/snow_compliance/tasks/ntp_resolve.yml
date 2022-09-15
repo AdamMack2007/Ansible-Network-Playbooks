@@ -1,0 +1,29 @@
+- name: Configure Arista NTP
+  import_role:
+    name: config_ntp
+    tasks_from: eos
+  check_mode: false
+
+- name: Set Arista Compliance Facts
+  set_fact:
+    fix_notes: "The following changes have been made:\n\n***********************\n{{ eos_ntp_status.commands | join('\n') }}\n***********************"
+    ticket_state: closed
+    resolution_code: fix_applied
+    ntp_compliant: "Yes"
+  when: (ansible_network_os == 'eos' and eos_ntp_status.changed)
+
+- name: Update ServiceNow Problem
+  servicenow.itsm.problem:
+    state: resolved
+    instance: "{{ instance }}"
+    number: "{{ ticket_number }}"
+    resolution_code: fix_applied
+    fix_notes: "{{ fix_notes }}"
+    assigned_to: admin
+    cause_notes: "Someone manually configured an incorrect value on the device."
+  delegate_to: localhost
+  when: eos_ntp_status.changed
+
+- name: Update SNOW CMDB
+  include_tasks:
+    file: snow_cmdb.yml

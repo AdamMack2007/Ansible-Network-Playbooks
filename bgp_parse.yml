@@ -1,0 +1,42 @@
+- hosts: eos
+  connection: network_cli
+  gather_facts: no
+
+  tasks:
+    - name: Gather configuration
+      arista.eos.eos_facts:
+        gather_subset:
+          - config
+
+    - name: Gather BGP Info
+      arista.eos.eos_bgp_global:
+        state: gathered
+        running_config: "{{ ansible_net_config }}"
+      register: eos_bgp
+
+    - name: Render BGP info
+      arista.eos.eos_bgp_global:
+        state: rendered
+        config: "{{ eos_bgp.gathered }}"
+      register: eos_bgp_rendered
+
+    - name: Set current BGP as fact
+      set_fact:
+        existing_bgp: "{{ eos_bgp_rendered.rendered }}"
+
+    - name: Push data to hostvars
+      lineinfile:
+        line: "{{ lookup('template','bgp.j2') }}"
+        path: "{{playbook_dir}}/host_vars/{{inventory_hostname}}.yml"
+      when: bgp_config is not defined
+
+    - name: Parse BGP
+      arista.eos.eos_bgp_global:
+        state: parsed
+        running_config: "{{ bgp_config }}"
+      register: eos_bgp
+
+    - name: Configure BGP
+      arista.eos.eos_bgp_global:
+        state: replaced
+        config: "{{ eos_bgp.parsed }}"

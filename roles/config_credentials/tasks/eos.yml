@@ -1,0 +1,13 @@
+- name: Configure Admin user
+  arista.eos.eos_user:
+    purge: no
+    name: admin
+    configured_password: "{{ global_pass }}"
+    state: present
+
+- name: Configure Network Admins
+  arista.eos.eos_user:
+    purge: no
+    name: amack
+    configured_password: "{{ global_pass }}"
+    state: present

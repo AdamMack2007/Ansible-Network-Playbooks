@@ -1,0 +1,10 @@
+---
+ansible-navigator:
+  ansible:
+    inventory:
+      entries:
+        - inventory
+  execution-environment:
+    container-engine: docker
+    enabled: true
+    image: automationhub.mackdev.net/network-ee:latest

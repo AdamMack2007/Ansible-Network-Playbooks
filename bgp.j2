@@ -1,0 +1,10 @@
+
+### BGP ###
+bgp_config: |
+{% for line in existing_bgp %}
+ {% if loop.first %}
+ {{ line }}
+ {% else %}
+  {{ line }}
+ {% endif %}
+{% endfor %}

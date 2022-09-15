@@ -1,0 +1,18 @@
+interface_config:
+  - name: Ethernet1
+    description: spine1-eth3
+    ip_address: 172.16.0.18/30
+    enabled: True
+  - name: Ethernet2
+    description: spine2-eth3
+    ip_address: 172.16.0.22/30
+    enabled: True
+  - name: Ethernet3
+    description: access_switch
+    enabled: True
+  - name: Loopback0
+    ip_address: 10.0.1.15/32
+    enabled: True
+  - name: Loopback1
+    ip_address: 10.0.2.2/32
+    enabled: True

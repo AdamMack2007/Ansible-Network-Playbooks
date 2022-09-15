@@ -1,0 +1,12 @@
+plugin: netbox.netbox.nb_inventory
+api_endpoint: https://192.168.10.169
+token: "618b49080916515d1d8b31010e7cc715a7479728"
+validate_certs: no
+group_by:
+  - platforms
+flatten_custom_fields: yes
+group_names_raw: yes
+query_filters:
+  - tag: network
+compose:
+  ansible_network_os: platform.slug

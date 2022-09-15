@@ -1,0 +1,12 @@
+- name: Commit any changes prior to update
+  paloaltonetworks.panos.panos_commit:
+    provider: "{{ provider }}"
+  delegate_to: localhost
+
+- name: Download and Install PANOS Update
+  paloaltonetworks.panos.panos_software:
+    provider: "{{ provider }}"
+    version: "{{ system_version }}"
+    install: "{{ install_updates }}"
+    restart: "{{ restart_host }}"
+  delegate_to: localhost

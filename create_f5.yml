@@ -1,0 +1,5 @@
+- hosts: lb1
+  gather_facts: false
+
+  roles:
+    - create_f5

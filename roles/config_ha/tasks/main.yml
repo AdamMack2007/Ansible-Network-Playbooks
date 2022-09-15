@@ -1,0 +1,3 @@
+---
+- name: "Include HA Tasks"
+  include_tasks: "{{ ansible_network_os }}.yml"

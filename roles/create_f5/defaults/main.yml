@@ -1,0 +1,33 @@
+---
+provider:
+  server: "{{ ansible_host }}"
+  timeout: 30
+  server_port: 443
+  validate_certs: no
+
+app_settings:
+  Dev:
+    API:
+      f5_profiles:
+        - http
+        - tcp
+        - name: DEV_API
+          context: client-side
+      pool: POOL_API
+      asm_policy: ASM_DEV_API
+  Prod:
+    API:
+      f5_profiles:
+        - http
+        - tcp
+        - name: PROD_API
+          context: client-side
+      pool: POOL_API
+      asm_policy: ASM_PROD_API
+
+network_subnets:
+  Dev:
+    vip_subnet: "10.1.1.0/24"
+    public_subnet: "100.1.1.0/24"
+
+netbox_url: "http://192.168.6.106"

@@ -1,0 +1,5 @@
+- name: Configure Arista NTP
+  arista.eos.eos_ntp_global:
+    state: replaced
+    config: "{{ ntp_config }}"
+  register: eos_ntp_status

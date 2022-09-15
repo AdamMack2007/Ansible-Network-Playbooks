@@ -1,0 +1,28 @@
+vlan 4094
+  name MLAG_PEERLINK
+  trunk group mlag-peer  
+
+interface vlan4094
+  no autostate
+  
+no spanning-tree vlan 4094
+
+{% for interface in interface_config %}
+{% if 'mlag_peerlink' in interface %}
+interface {{ interface['name'] }}
+   switchport mode trunk
+   switchport trunk group mlag-peer
+
+mlag configuration
+   local-interface vlan 4094
+   {% if not ha_primary %}
+   domain-id {{ hostvars[ha_peer]['eos_mlag_domain'] }}
+   {% else %}
+   domain-id {{ eos_mlag_domain }}
+   {% endif %}
+   peer-link {{ interface['name'] }}
+   peer-address {{ hostvars[ha_peer]['mlag_ip'] | ipaddr('address') }}
+   heartbeat-interval 2500
+   reload-delay 150
+{% endif %}
+{% endfor %}

@@ -1,0 +1,49 @@
+{# Gather new commands as a list to compare against existing #}
+
+
+{# Example command output #}
+{# 
+logging buffered 5000
+logging facility local7
+logging vrf management host 1.2.3.4 5514
+logging vrf management source-interface Management1 
+#}
+
+{% set log_commands = [] %}
+
+{{ log_commands.append("logging buffered 5000") }}
+{{ log_commands.append("logging facility local7") }}
+
+{% if syslog_vrf %}
+{{ log_commands.append("logging vrf "+ syslog_vrf +" source-interface "+ syslog_source_interface)  }}
+
+{% for host in syslog_servers %}
+logging vrf {{ syslog_vrf }} host {{ host }} {{ syslog_port }}
+logging vrf {{ syslog_vrf }} source-interface {{ syslog_source_interface }}
+{{ log_commands.append("logging vrf "+ syslog_vrf +" host " + host +" "+ syslog_port|string) }}
+{% endfor %}
+
+{% else %}
+
+{{ log_commands.append("logging source-interface "+ syslog_source_interface)  }}
+{% for host in syslog_servers %}
+logging host {{ host }} {{ syslog_port }}
+logging source-interface {{ syslog_source_interface }}
+{{ log_commands.append("logging host " + host +" "+ syslog_port|string) }}
+{% endfor %}
+{% endif %}
+logging buffered 5000
+logging facility local7
+
+
+{% if enforce_compliance %}
+{% set existing_syslog = current_syslog.stdout_lines[0] %}
+{% if existing_syslog|length > 2 %}
+{% for setting in existing_syslog %}
+{# Comparing existing lines to the desired output created in log_commands above#}
+{% if setting not in log_commands %}
+no {{ setting }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endif %}

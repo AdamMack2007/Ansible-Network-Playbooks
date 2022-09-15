@@ -1,0 +1,23 @@
+- name: Configure EOS Hostname
+  arista.eos.eos_system:
+    hostname: "{{ inventory_hostname }}"
+
+- name: Configure SSH Ciphers
+  arista.eos.eos_config:
+    lines: cipher aes256-cbc aes256-ctr aes256-gcm@openssh.com
+    parents: management ssh
+
+- name: Configure Login Banner
+  arista.eos.eos_banner:
+    banner: login
+    state: present
+    text: "{{lookup('file', 'files/banner.txt') }}"
+
+- name: Enable Arista eAPI
+  arista.eos.eos_eapi:
+    state: started
+    http: yes
+    https: no
+    socket: yes
+    vrf: management
+  when: enable_api | bool

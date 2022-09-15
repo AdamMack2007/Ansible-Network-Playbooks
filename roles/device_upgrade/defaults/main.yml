@@ -1,0 +1,8 @@
+---
+# defaults file for roles/device_upgrade
+install_updates: no
+restart_host: no
+
+version_map:
+  4.24.1.1F: vEOS-lab.swi
+  4.23.5M: vEOS-lab-4.23.5M.swi

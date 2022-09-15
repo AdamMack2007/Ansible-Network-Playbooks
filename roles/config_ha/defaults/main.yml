@@ -1,0 +1,15 @@
+---
+f5_ha_vlan: 4094
+f5_ha_ports:
+  - 1.3
+
+f5_ha_primary_ip: "240.0.0.1"
+f5_ha_secondary_ip: "240.0.0.2"
+
+nxos_vpc_ports:
+  9336c-fx2:
+    - Eth1/35
+    - Eth1/36
+  93180YC-EX:
+    - Eth1/53
+    - Eth1/54

@@ -1,0 +1,51 @@
+- name: Configure CPE Bandwidth
+  block:
+    - name: Parse CPE pre-change interface stats
+      ansible.netcommon.cli_parse:
+        command: "show interface {{ cpe_interface }}"
+        parser:
+          name: ansible.netcommon.pyats
+      register: pre_config
+
+    - name: Configure IOS Bandwidth
+      cisco.ios.ios_config:
+        parents: "interface {{ cpe_interface }}"
+        lines:
+          - "bandwidth {{ bandwidth_amount }}"
+
+    - name: Parse CPE post-change interface stats
+      ansible.netcommon.cli_parse:
+        command: "show interface {{ cpe_interface }}"
+        parser:
+          name: ansible.netcommon.pyats
+      register: post_config
+
+    - name: Confirm bandwidth is correct
+      assert:
+        that: "{{ post_config['parsed'][cpe_interface]['bandwidth'] }} == {{ bandwidth_amount }}"
+        success_msg: "Interface bandwidth configured correctly"
+
+    - name: Update an Change Request
+      snow_record:
+        username: "{{ snow_user }}"
+        password: "{{ snow_password }}"
+        instance: "{{ instance_id }}"
+        state: present
+        table: sc_req_item
+        number: "{{ ritm }}"
+        data:
+          comments: "{{ lookup('template','templates/success.j2') }}"
+      delegate_to: localhost
+
+  rescue:
+    - name: Update an Change Request
+      snow_record:
+        username: "{{ snow_user }}"
+        password: "{{ snow_password }}"
+        instance: "{{ instance_id }}"
+        state: present
+        table: sc_req_item
+        number: "{{ ritm }}"
+        data:
+          comments: "{{ lookup('template','templates/failed.j2') }}"
+      delegate_to: localhost

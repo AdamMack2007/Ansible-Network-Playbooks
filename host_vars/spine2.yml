@@ -1,0 +1,69 @@
+switch_type: spine
+
+evpn_config:
+  - neighbor: 10.0.250.11
+    remote_as: 64513
+  - neighbor: 10.0.250.12
+    remote_as: 64513
+  - neighbor: 10.0.250.13
+    remote_as: 64514
+  - neighbor: 10.0.250.14
+    remote_as: 64514
+
+### Interfaces ###
+interface_config:
+  - name: loopback0
+    enabled: True
+    ip_address: 10.0.250.2/32
+
+  - name: Ethernet1
+    enabled: True
+    description: Leaf1 Eth2
+    ip_address: 10.0.2.0/31
+
+  - name: Ethernet2
+    enabled: True
+    description: Leaf2 Eth2
+    ip_address: 10.0.2.2/31
+
+  - name: Ethernet3
+    enabled: True
+    description: Leaf3 Eth2
+    ip_address: 10.0.2.4/31
+
+  - name: Ethernet4
+    enabled: True
+    description: Leaf4 Eth2
+    ip_address: 10.0.2.6/31
+
+  - name: Ethernet5
+    enabled: False
+
+  - name: Ethernet6
+    enabled: False
+
+  - name: Ethernet7
+    enabled: False
+
+  - name: Ethernet8
+    enabled: False
+
+### BGP ###
+bgp_config: |
+  router bgp 64512
+    neighbor 10.0.2.1 remote-as 64513
+    neighbor 10.0.2.1 description Leaf1
+    neighbor 10.0.2.1 maximum-routes 12000
+    neighbor 10.0.2.3 remote-as 64513
+    neighbor 10.0.2.3 description Leaf2
+    neighbor 10.0.2.3 maximum-routes 12000
+    neighbor 10.0.2.5 remote-as 64514
+    neighbor 10.0.2.5 description Leaf3
+    neighbor 10.0.2.5 maximum-routes 12000
+    neighbor 10.0.2.7 remote-as 64514
+    neighbor 10.0.2.7 description Leaf4
+    neighbor 10.0.2.7 maximum-routes 12000
+    network 10.0.0.0/24
+    network 10.0.1.0/24
+    network 10.0.2.0/24
+    router-id 10.0.250.1

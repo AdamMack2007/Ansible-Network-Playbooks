@@ -1,0 +1,6 @@
+---
+- name: Configure F5 DNS Servers
+  f5networks.f5_modules.bigip_device_dns:
+    name_servers: "{{ dns_servers }}"
+    provider: "{{ provider }}"
+  delegate_to: localhost

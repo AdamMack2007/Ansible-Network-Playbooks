@@ -1,0 +1,18 @@
+- name: Create snmp profile
+  paloaltonetworks.panos.panos_snmp_profile:
+    provider: "{{ provider }}"
+    name: "SNMPV3_PROFILE"
+    version: "v3"
+  delegate_to: localhost
+
+- name: Create snmp v3 server
+  paloaltonetworks.panos.panos_snmp_v3_server:
+    provider: "{{ provider }}"
+    snmp_profile: "SNMPV3_PROFILE"
+    name: "{{ snmp_group }}"
+    manager: "{{ item }}"
+    user: "{{ snmp_user }}"
+    auth_password: "{{ snmp_password }}"
+    priv_password: "{{ snmp_password }}"
+  loop: "{{ snmp_servers }}"
+  delegate_to: localhost

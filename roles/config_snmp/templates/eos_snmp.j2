@@ -1,0 +1,12 @@
+{% if snmp_vrf %}
+snmp-server vrf {{ snmp_vrf }}
+{% for server in snmp_servers %}
+snmp-server host {{ server }} vrf {{ snmp_vrf }} version 3 auth {{ snmp_user }} 
+{% endfor %}
+{% else %}
+{% for server in snmp_servers %}
+snmp-server host {{ server }} version 3 auth {{ snmp_user }} 
+{% endfor %}
+{% endif %}
+snmp-server group {{ snmp_group }} v3 auth
+snmp-server user {{ snmp_user }} {{ snmp_group }} v3 auth sha {{ snmp_password }}

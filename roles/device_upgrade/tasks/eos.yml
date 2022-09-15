@@ -1,0 +1,156 @@
+- name: Gather Pre Upgrade Facts
+  arista.eos.eos_facts:
+
+- name: Set Pre Upgrade Version
+  set_fact:
+    pre_upgrade_version: "{{ ansible_net_version }}"
+
+- name: Check that version is not already installed
+  block:
+    - name: Check that version is not already installed
+      assert:
+        that:
+          - ansible_net_version != desired_version
+        success_msg: "Device is ready to be upgraded"
+        fail_msg: "Device does NOT need to be upgraded"
+  rescue:
+    - name: Update an Change Request
+      servicenow.servicenow.snow_record:
+        username: "{{ snow_user }}"
+        password: "{{ snow_password }}"
+        instance: "{{ snow_id }}"
+        state: present
+        table: sc_req_item
+        number: "{{ ritm }}"
+        data:
+          comments: "{{ lookup('template','templates/failed_no_upgrade.j2') }}"
+      delegate_to: localhost
+  when: ritm is defined
+
+- name: Check that version is not already installed
+  assert:
+    that:
+      - ansible_net_version != desired_version
+    success_msg: "Device is ready to be upgraded"
+    fail_msg: "Device does NOT need to be upgraded"
+
+- name: Get Pre Upgrade State
+  arista.eos.eos_command:
+    commands:
+      - show ip bgp summary | json
+  register: pre_bgp_summary
+
+#- name: Parse BGP State
+#  set_fact:
+#    pre_bgp_state: "{{ pre_bgp_summary.stdout[0].vrfs.default.peers | dict2items | community.general.json_query('[*].{peer: key, asn: value.asn, state: value.peerState}') }}"
+
+- name: Get MLAG status
+  arista.eos.eos_command:
+    commands: show mlag | json
+  register: pre_mlag_status
+
+- name: Save Config
+  arista.eos.eos_config:
+    save_when: always
+
+- name: Set Image Name Fact
+  set_fact:
+    image_name: "{{ version_map[desired_version] }}"
+
+- name: Copy image to device
+  set_fact:
+    blank: blank state
+
+- name: Upgrade EOS Image
+  block:
+    - name: Set Boot Flash
+      arista.eos.eos_config:
+        provider:
+          timeout: 60
+        commands:
+          - "install source flash:{{ image_name }}"
+
+    - name: Reboot Device
+      cli_command:
+        command: "reload now"
+        prompt:
+          - Save?
+          - "confirm"
+        answer:
+          - y
+          - y
+
+    - name: Wait For Device To Return
+      wait_for:
+        host: "{{ ansible_host }}"
+        port: 22
+        timeout: 600
+        delay: 100
+      delegate_to: localhost
+  when: ansible_net_version != desired_version
+
+- name: Wait 4 Minutes For Device State To Normalize
+  pause:
+    minutes: 4
+  delegate_to: localhost
+
+- name: Gather Post Upgrade Facts
+  arista.eos.eos_facts:
+
+- name: Get Post Upgrade State
+  arista.eos.eos_command:
+    commands:
+      - show ip bgp summary | json
+  register: post_bgp_summary
+
+#- name: Parse Post Upgrade BGP State
+#  set_fact:
+#    post_bgp_state: "{{ post_bgp_summary.stdout[0].vrfs.default.peers | dict2items | community.general.json_query('[*].{peer: key, asn: value.asn, state: value.peerState}') }}"
+
+- name: Get MLAG Post Status
+  arista.eos.eos_command:
+    commands: show mlag | json
+  register: post_mlag_status
+
+- name: Assert Version Is Correct
+  assert:
+    that:
+      - desired_version == ansible_net_version
+      - post_mlag_status.stdout[0].peerLinkStatus == pre_mlag_status.stdout[0].peerLinkStatus
+      - post_mlag_status.stdout[0].localIntfStatus == pre_mlag_status.stdout[0].localIntfStatus
+
+- name: Check Post Upgrade State
+  block:
+    - name: Assert Version Is Correct
+      assert:
+        that:
+          - desired_version == ansible_net_version
+          - post_mlag_status.stdout[0].peerLinkStatus == pre_mlag_status.stdout[0].peerLinkStatus
+          - post_mlag_status.stdout[0].localIntfStatus == pre_mlag_status.stdout[0].localIntfStatus
+          #- post_bgp_state == pre_bgp_state
+
+    - name: Update an Change Request
+      servicenow.servicenow.snow_record:
+        username: "{{ snow_user }}"
+        password: "{{ snow_password }}"
+        instance: "{{ snow_id }}"
+        state: present
+        table: sc_req_item
+        number: "{{ ritm }}"
+        data:
+          comments: "{{ lookup('template','templates/success.j2') }}"
+      delegate_to: localhost
+
+  rescue:
+    - name: Update an Change Request
+      servicenow.servicenow.snow_record:
+        username: "{{ snow_user }}"
+        password: "{{ snow_password }}"
+        instance: "{{ snow_id }}"
+        state: present
+        table: sc_req_item
+        number: "{{ ritm }}"
+        data:
+          comments: "{{ lookup('template','templates/failed.j2') }}"
+      delegate_to: localhost
+  when: ritm is defined

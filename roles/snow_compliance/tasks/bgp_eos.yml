@@ -1,0 +1,21 @@
+- name: Get Arista BGP Status
+  import_role:
+    name: config_routing
+    tasks_from: eos
+  check_mode: true
+
+- name: Set Arista Compliance Facts
+  set_fact:
+    problem_description: "The following changes need to be made:\n\n***********************\n{{ eos_bgp_status.commands | join('\n') }}\n***********************"
+    short_description: "{{ inventory_hostname | upper }} BGP configuration out of compliance"
+    bgp_compliant: "No"
+  when: (ansible_network_os == 'eos' and eos_bgp_status.changed)
+
+- name: Create SNOW Problem Ticket
+  include_tasks:
+    file: snow_ticket.yml
+  when: eos_bgp_status.changed
+
+- name: Update SNOW CMDB
+  include_tasks:
+    file: snow_bgp_cmdb.yml

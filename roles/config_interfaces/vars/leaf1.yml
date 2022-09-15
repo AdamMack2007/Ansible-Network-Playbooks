@@ -1,0 +1,22 @@
+interface_config:
+  - name: Ethernet1
+    description: spine1-eth1
+    ip_address: 172.16.0.2/30
+    enabled: True
+  - name: Ethernet2
+    description: spine2-eth1
+    ip_address: 172.16.0.10/30
+    enabled: True
+  - name: Ethernet3
+    description: access_switch
+    enabled: True
+  - name: Loopback0
+    ip_address: 10.0.1.13/32
+    enabled: True
+  - name: Loopback1
+    ip_address: 10.0.2.1/32
+    enabled: True
+  - name: vlan4094
+    enabled: True
+    description: MLAG_PEERLINK
+    ip_address: 192.168.100.1/29

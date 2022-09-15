@@ -1,0 +1,7 @@
+- name: Update Admin Password
+  f5networks.f5_modules.bigip_user:
+    username_credential: admin
+    password_credential: "{{ global_pass }}"
+    state: present
+    provider: "{{ provider }}"
+  delegate_to: localhost

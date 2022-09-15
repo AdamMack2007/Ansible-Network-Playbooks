@@ -1,0 +1,17 @@
+- name: Configure SSH Management ACLs
+  cisco.asa.asa_config:
+    lines: "ssh {{ item.network }} {{ item.interface }}"
+  loop: "{{ ssh_allowed_subnets }}"
+  loop_control:
+    label: "{{ item.network }}"
+
+- name: Parse Object groups
+  cisco.asa.asa_ogs:
+    running_config: "{{ object_groups }}"
+    state: parsed
+  register: asa_ogs
+
+- name: Configure Object groups
+  cisco.asa.asa_ogs:
+    config: "{{ asa_ogs.parsed }}"
+    state: replaced

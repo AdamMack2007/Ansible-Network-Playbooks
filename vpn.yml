@@ -1,0 +1,7 @@
+---
+- name: Configure VPNs
+  hosts: asa
+  gather_facts: no
+
+  roles:
+    - config_vpn

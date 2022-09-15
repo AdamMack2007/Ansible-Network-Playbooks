@@ -1,0 +1,13 @@
+---
+- name: Configure base config on Nexus devices
+  hosts: all
+  connection: "{{ ansible_connection | default('local') }}"
+  gather_facts: no
+
+  roles:
+    - config_provisioning
+    - config_ntp
+    - config_syslog
+    - config_snmp
+    - config_aaa
+    - config_save

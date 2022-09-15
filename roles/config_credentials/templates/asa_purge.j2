@@ -1,0 +1,6 @@
+{% for user in existing_users.stdout_lines[0] %}
+{% set user = user.split(' ')[1] %}
+{% if user != primary_user %}
+no username {{ user }}
+{% endif %}
+{% endfor %}

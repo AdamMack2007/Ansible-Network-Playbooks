@@ -1,0 +1,11 @@
+tacacs-server timeout 10
+{% for server in aaa_servers %}
+tacacs-server host {{ server }} key {{ aaa_key }}
+{% endfor %}
+aaa group server tacacs+ {{ aaa_group_name }}
+{% for server in aaa_servers %}
+ server {{ server }}
+ {% endfor %}
+ 
+aaa authentication login default group {{ aaa_group_name }} local
+aaa authentication enable default group {{ aaa_group_name }} local

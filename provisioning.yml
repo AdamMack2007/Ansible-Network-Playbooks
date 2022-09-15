@@ -1,0 +1,8 @@
+---
+- name: Configure Basic Provisioning (hostname,features)
+  hosts: all
+  gather_facts: no
+  strategy: free
+
+  roles:
+    - config_provisioning

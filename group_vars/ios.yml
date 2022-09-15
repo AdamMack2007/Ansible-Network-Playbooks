@@ -1,0 +1,20 @@
+ansible_connection: network_cli
+ansible_network_os: ios
+ansible_become: yes
+desired_version: "16.12.03"
+manufacturer: Cisco
+
+syslog_config:
+  buffered:
+    size: 9000
+  console:
+    severity: notifications
+  facility: syslog
+  hosts:
+    - hostname: "{{ syslog_servers.0 }}"
+      transport:
+        udp:
+          port: "{{ syslog_port }}"
+      vrf: "{{ syslog_vrf | default(omit) }}"
+  origin_id:
+    tag: hostname

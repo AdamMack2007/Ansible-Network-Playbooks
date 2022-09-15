@@ -1,0 +1,12 @@
+- name: Create ServiceNow Problem
+  servicenow.itsm.problem:
+    state: "{{ ticket_state | default('new') }}"
+    instance: "{{ instance }}"
+    number: "{{ ticket_number | default(omit) }}"
+    description: "{{ problem_description | default(omit) }}"
+    resolution_code: "{{ resolution_code | default(omit) }}"
+    fix_notes: "{{ fix_notes | default(omit) }}"
+    impact: medium
+    urgency: low
+    short_description: "{{ short_description | default(omit) }}"
+  delegate_to: localhost

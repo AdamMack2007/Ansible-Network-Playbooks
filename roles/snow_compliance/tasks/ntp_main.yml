@@ -1,0 +1,4 @@
+---
+- name: "Include NTP Compliance Tasks"
+  include_tasks: "ntp_{{ ansible_network_os }}.yml"
+  when: ansible_network_os is defined

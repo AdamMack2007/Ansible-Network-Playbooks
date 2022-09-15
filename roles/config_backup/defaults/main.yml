@@ -1,0 +1,9 @@
+---
+network_backup_dir: /tmp/backups
+network_backup_file: "{{ network_backup_dir }}/{{ inventory_hostname }}.cfg"
+network_backup_repository: "http://192.168.6.101/amack/network-backup-configurations.git"
+#network_backup_repository: "git@192.168.6.101:amack/network-backup-configurations.git"
+git_name: ansible tower
+git_email: ansible_tower@gmail.com
+git_user: "amack"
+git_password: "!iprev08"

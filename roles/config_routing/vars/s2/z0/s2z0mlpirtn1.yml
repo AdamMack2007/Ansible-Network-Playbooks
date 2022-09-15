@@ -1,0 +1,21 @@
+loopback_interfaces:
+  - name: loopback0
+    ip: 10.32.0.102/32
+
+################## OSPF ##################
+
+################## BGP ##################
+
+bgp_as: 36688
+
+bgp_router_id: 10.32.0.102
+
+bgp_neighbors:
+  - neighbor: 10.32.2.10
+    remote_as: 65010
+    password: Changeme123
+    description: S2Z0MLPIRTC1N1
+  - neighbor: 10.32.2.11
+    remote_as: 65010
+    password: Changeme123
+    description: S2Z0MLPIRTC1N2

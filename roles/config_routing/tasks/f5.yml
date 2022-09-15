@@ -1,0 +1,9 @@
+---
+- name: Configure F5 Management Routes
+  f5networks.f5_modules.bigip_management_route:
+    provider: "{{ provider }}"
+    name:
+    network:
+    gateway:
+    state:
+  delegate_to: localhost

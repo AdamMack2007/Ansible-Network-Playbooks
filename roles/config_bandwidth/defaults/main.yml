@@ -1,0 +1,8 @@
+---
+cpe_interface: "GigabitEthernet2"
+instance_id: dev103976
+
+instance:
+  host: https://dev103976.service-now.com
+  username: "{{ snow_user }}"
+  password: "{{ snow_password }}"

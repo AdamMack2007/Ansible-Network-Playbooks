@@ -1,0 +1,12 @@
+---
+- name: Configure base config on F5 devices
+  hosts: all
+  gather_facts: no
+
+  roles:
+    - config_provisioning
+    - config_ntp
+    - config_dns
+    - config_syslog
+    - config_snmp
+    - config_save

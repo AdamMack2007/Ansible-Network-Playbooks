@@ -1,0 +1,5 @@
+- name: Configure ASA HA
+  cisco.asa.asa_config:
+    src: templates/asa.j2
+    replace: line
+  when: ha_peer is defined

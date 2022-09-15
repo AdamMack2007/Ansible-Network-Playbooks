@@ -1,0 +1,20 @@
+- name: Get IPSec Phase 2 Output
+  cisco.asa.asa_command:
+    commands:
+      - show crypto ipsec sa
+  register: asa_ipsecsa
+
+- name: Parse IPSEC Phase 2
+  set_fact:
+    asa_phase2: "{{ asa_ipsecsa.stdout[0] | parse_cli_textfsm('textfsm/asa_ipsecsa.textfsm') }}"
+
+- name: Send Mattermost Message
+  community.general.mattermost:
+    url: "{{ mattermost_url }}"
+    api_key: "{{ mattermost_token }}"
+    channel: "{{ mattermost_channel }}"
+    text: "{{ lookup('template','asa_ipsec.j2') }}"
+    validate_certs: no
+  loop: "{{ asa_phase2 }}"
+  loop_control:
+    label: "{{ item.CURRENT_PEER }}"

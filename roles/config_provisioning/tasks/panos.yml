@@ -1,0 +1,6 @@
+- name: Configure Management Profile
+  paloaltonetworks.panos.panos_mgtconfig:
+    provider: "{{ provider }}"
+    login_banner: "{{ lookup('file', 'files/banner.txt') }}"
+    timezone: "US/Mountain"
+  delegate_to: localhost

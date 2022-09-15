@@ -1,0 +1,34 @@
+---
+- name: Generate ISE TACACS Key
+  set_fact:
+    ise_pass: "{{ lookup('password', '/dev/null length=18 chars=ascii_letters,digits') }}"
+    cacheable: yes
+  no_log: true
+  when: ise_pass is not defined
+
+- name: Create NETOPS Remote Role Groups
+  f5networks.f5_modules.bigip_remote_role:
+    name: Netops
+    line_order: 1
+    attribute_string: F5-LTM-User-Info-1=Netops
+    remote_access: true
+    assigned_role: administrator
+    terminal_access: tmsh
+    provider: "{{ provider }}"
+  delegate_to: localhost
+  tags: aaa
+
+- name: Set TACACS Authentication
+  f5networks.f5_modules.bigip_device_auth:
+    type: tacacs
+    authentication: use-all-servers
+    protocol_name: ip
+    secret: "{{ ise_pass }}"
+    service_name: ppp
+    servers:
+      - address: "{{ item }}"
+    state: present
+    use_for_auth: yes
+    provider: "{{ provider }}"
+  with_items: "{{ aaa_servers }}"
+  delegate_to: localhost

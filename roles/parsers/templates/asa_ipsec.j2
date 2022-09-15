@@ -1,0 +1,8 @@
+### {{ inventory_hostname }}
+Peer: {{ item.CURRENT_PEER }}
+Local Address: {{ item.LOCAL_IDENTITY_ADDR }} {{ item.LOCAL_IDENTITY_MASK }}
+Remote Address: {{ item.REMOTE_IDENTITY_ADDR }} {{ item.REMOTE_IDENTITY_MASK}}
+Packets Encap: {{ item.PACKETS_ENCAPSULATED }}
+Packets Encrypted: {{ item.PACKETS_ENCRYPTED }}
+Packets Decap: {{ item.PACKETS_DECAPSULATED }}
+Packets Decrypted: {{ item.PACKETS_DECRYPTED }}

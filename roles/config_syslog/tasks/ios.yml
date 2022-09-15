@@ -1,0 +1,4 @@
+- name: Configure IOS Logging
+  cisco.ios.ios_logging_global:
+    config: "{{ syslog_config }}"
+    state: replaced

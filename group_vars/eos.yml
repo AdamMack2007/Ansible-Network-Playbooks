@@ -1,0 +1,31 @@
+ansible_become: yes
+ansible_connection: network_cli
+desired_version: "4.24.1.1F"
+boot_path: "flash:/{{ desired_version }}"
+manufacturer: Arista
+
+syslog_vrf: management
+syslog_source_interface: Management1
+
+snmp_vrf: management
+
+ntp_vrf: management
+
+dns_vrf: management
+dns_source_interface: Management1
+
+syslog_config:
+  buffered:
+    buffer_size: 5000
+  vrfs:
+    - name: management
+      hosts:
+        - name: "{{ syslog_servers.0 }}"
+          port: "{{ syslog_port }}"
+      source_interface: Management1
+  facility: local7
+
+mgmt_acls: |
+  ip access-list mgmt-in
+     10 permit tcp 192.168.6.0/24 any eq ssh
+     20 permit tcp 192.168.10.0/24 any eq ssh

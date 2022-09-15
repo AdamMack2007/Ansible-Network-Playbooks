@@ -1,0 +1,20 @@
+- name: Configure SSH Ciphers
+  cisco.asa.asa_config:
+    lines:
+      - ssh cipher encryption high
+      - ssh cipher integrity high
+
+- name: Configure ASA Hostname
+  cisco.asa.asa_config:
+    lines:
+      - "hostname {{ inventory_hostname }}"
+
+- name: Configure Time zone
+  cisco.asa.asa_config:
+    lines: "clock timezone GMT {{ gmt_offset }}"
+
+- name: Configure Login Timeouts
+  cisco.asa.asa_config:
+    lines:
+      - "console timeout 10"
+      - "ssh timeout 10"

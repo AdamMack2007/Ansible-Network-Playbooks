@@ -1,0 +1,8 @@
+---
+- name: Configure F5 NTP Servers
+  f5networks.f5_modules.bigip_device_ntp:
+    ntp_servers: "{{ ntp_servers }}"
+    provider: "{{ provider }}"
+    timezone: "{{ timezone }}"
+  delegate_to: localhost
+  register: f5_ntp_status

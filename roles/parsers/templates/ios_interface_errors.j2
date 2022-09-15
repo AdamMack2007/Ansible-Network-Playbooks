@@ -1,0 +1,9 @@
+### {{ inventory_hostname }}
+
+|     Interface      | Description |  CRC Errors |  Inbound Errors |  Outbound Errors  |  Under Runs | Over Runs |
+| :----------------: | :---------: | :---------: | :--------------:| :----------------:| :----------:| :--------:|
+{% for interface,data in interfaces.items() %}
+{% if (data.counters.in_crc_errors != 0 ) or ( data.counters.in_errors != 0) or  (data.counters.out_errors != 0) or  (data.counters.out_underruns != 0) or  (data.counters.in_overrun != 0) %}
+| {{ interface }} | {{ data.description|default('') }} | {{ data.counters.in_crc_errors }} | {{ data.counters.in_errors }} | {{ data.counters.out_errors }} | {{ data.counters.out_underruns }} | {{ data.counters.in_overrun }} |
+{% endif %}
+{% endfor %}

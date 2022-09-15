@@ -1,0 +1,6 @@
+snmp-server group {{ snmp_group }} v3 auth
+snmp-server user {{ snmp_user }} {{ snmp_group }} v3 auth sha {{ snmp_password }} priv aes 128 {{ snmp_password }}
+{% for server in snmp_servers %}
+snmp-server host {{ server }} {{ snmp_user }}
+snmp-server host {{ server }} traps {{ snmp_user }}
+{% endfor %}

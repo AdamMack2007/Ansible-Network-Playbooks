@@ -1,0 +1,6 @@
+- name: Backup Cisco ASA Devices
+  cisco.asa.asa_config:
+    backup: yes
+    backup_options:
+      filename: "{{ inventory_hostname }}.cfg"
+      dir_path: "{{ network_backup_dir }}"

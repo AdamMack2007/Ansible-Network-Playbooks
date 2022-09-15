@@ -1,0 +1,11 @@
+---
+- name: Configure AAA
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Include Config AAA Role
+      include_role:
+        name: config_aaa
+      tags:
+        - aaa

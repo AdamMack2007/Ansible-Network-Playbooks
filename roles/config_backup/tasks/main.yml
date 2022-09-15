@@ -1,0 +1,60 @@
+---
+- name: Clone the backup repo
+  git:
+    repo: "{{ network_backup_repository }}"
+    dest: "{{ network_backup_dir }}"
+    accept_hostkey: yes
+    force: yes
+  register: clone_result
+  delegate_to: localhost
+  run_once: true
+  when: network_backup_repository is defined
+
+- include_tasks: "{{ ansible_network_os }}.yml"
+
+- block:
+    - name: Add any new backups to the repossitory
+      command: "git add *.cfg"
+      args:
+        chdir: "{{ network_backup_dir }}"
+      delegate_to: localhost
+      changed_when: False
+      run_once: true
+
+    - name: Get the status of the repository
+      command: "git status"
+      args:
+        chdir: "{{ network_backup_dir }}"
+      register: status_results
+      changed_when: False
+      ignore_errors: yes
+      delegate_to: localhost
+      run_once: true
+
+    - name: Get Current Date
+      set_fact:
+        current_date: "{{ lookup('pipe','date +%m-%d-%H-%M') }}"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Commit the changes
+      command: "git commit -am 'Network Backup - {{ current_date }}'"
+      args:
+        chdir: "{{ network_backup_dir }}"
+      when: status_results.stdout is search('Changes')
+      delegate_to: localhost
+      run_once: true
+      environment:
+        GIT_COMMITTER_NAME: "{{ git_name | default(omit) }}"
+        GIT_COMMITTER_EMAIL: "{{ git_email | default(omit) }}"
+        GIT_AUTHOR_NAME: "{{ git_name | default(omit) }}"
+        GIT_AUTHOR_EMAIL: "{{ git_email | default(omit) }}"
+
+    - name: Push the changes
+      command: "git push origin master"
+      args:
+        chdir: "{{ network_backup_dir }}"
+      run_once: true
+      when: status_results.stdout is search('Changes')
+      delegate_to: localhost
+  when: network_backup_repository is defined

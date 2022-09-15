@@ -1,0 +1,7 @@
+---
+- name: Parser Demo
+  hosts: all
+  gather_facts: no
+
+  roles:
+    - parsers

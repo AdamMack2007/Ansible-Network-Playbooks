@@ -1,0 +1,10 @@
+- name: Get Current ASA Syslog Servers
+  cisco.asa.asa_command:
+    commands:
+      - show run | i logging host
+  register: current_syslog
+
+- name: Configure ASA Syslog Servers
+  cisco.asa.asa_config:
+    src: templates/asa_syslog.j2
+    save: yes

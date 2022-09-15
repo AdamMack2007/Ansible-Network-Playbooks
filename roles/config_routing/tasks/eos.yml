@@ -1,0 +1,16 @@
+- name: Parse BGP
+  arista.eos.eos_bgp_global:
+    state: parsed
+    running_config: "{{ bgp_config }}"
+  register: eos_bgp
+  when: bgp_config is defined
+
+- name: Configure BGP
+  arista.eos.eos_bgp_global:
+    state: replaced
+    config: "{{ eos_bgp.parsed }}"
+  register: eos_bgp_status
+
+- name: Save Configuration
+  arista.eos.eos_config:
+    save_when: changed

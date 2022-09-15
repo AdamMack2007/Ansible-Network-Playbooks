@@ -1,0 +1,10 @@
+- name: Get Existing ASA DNS Servers
+  cisco.asa.asa_command:
+    commands: "sh run dns"
+  register: current_dns
+
+- name: Configure ASA DNS Servers
+  cisco.asa.asa_config:
+    src: templates/asa_dns.j2
+    replace: line
+    save: yes

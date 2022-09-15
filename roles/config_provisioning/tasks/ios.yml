@@ -1,0 +1,3 @@
+- name: Configure IOS Hostname
+  cisco.ios.ios_system:
+    hostname: "{{ inventory_hostname }}"

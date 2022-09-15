@@ -1,0 +1,16 @@
+interface_config:
+  - name: Ethernet1
+    description: leaf1-eth1
+    ip_address: 172.16.0.1/30
+    enabled: True
+  - name: Ethernet2
+    description: leaf2-eth1
+    ip_address: 172.16.0.5/30
+    enabled: True
+  - name: Ethernet3
+    description: leaf3-eth1
+    ip_address: 172.16.0.17/30
+    enabled: True
+  - name: Loopback0
+    ip_address: 10.0.1.11/32
+    enabled: True

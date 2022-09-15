@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 8px;
+}
+</style>
+<h2>{{ inventory_hostname }}</h2>
+ <table>
+ <thead>
+   <tr>
+     <th>Interface</th>
+     <th>Description</th>
+     <th>Enabled</th>
+     <th>CRC Errors</th>
+     <th>MTU</th>
+     <th>
+   </tr>
+ </thead>
+ <tbody>
+{% for interface,data in interfaces.items() %}
+   <tr>
+     <td style="text-align:center">{{ interface }}</td>
+     <td style="text-align:center">{{ data.description | default(None) }}</td>
+     <td style="text-align:center">{% if (data.enabled) and (data.line_protocol =='up') and (data.oper_status =='up') %}&#9989;{% else %}&#9940;{% endif %}</td>
+     <td style="text-align:center">{{ data.counters.in_crc_errors }}</td>
+     <td style="text-align:center">{{ data.mtu | default(None) }}</td>
+   </tr>
+{% endfor %}
+</tbody>
+</table>

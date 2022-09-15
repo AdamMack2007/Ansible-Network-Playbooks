@@ -1,0 +1,2 @@
+---
+device_info_query: "[? name=='{{ inventory_hostname }}'].{sys_id: sys_id, name: name}"

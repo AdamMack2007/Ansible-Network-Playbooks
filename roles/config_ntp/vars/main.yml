@@ -1,0 +1,6 @@
+---
+# vars file for config_ntp
+ntp_config:
+  servers:
+    - server: 216.239.35.1
+      vrf: "{{ ntp_vrf | default(omit) }}"

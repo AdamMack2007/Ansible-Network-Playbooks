@@ -1,0 +1,4 @@
+- name: Configure SNMPv3
+  cisco.ios.ios_config:
+    src: templates/ios_snmp.j2
+    save_when: changed

@@ -1,0 +1,14 @@
+---
+- name: Configure base config on Arista EOS devices
+  hosts: all
+  gather_facts: no
+
+  roles:
+    - config_provisioning
+    - config_ntp
+    - config_syslog
+    - config_snmp
+    - config_aaa
+    - config_routing
+    - config_save
+    - config_backup

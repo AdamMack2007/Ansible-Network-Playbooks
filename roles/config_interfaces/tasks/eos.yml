@@ -1,0 +1,78 @@
+- name: Set Interface Dictionary Facts
+  set_fact:
+    port_config: "{{ interface_config | json_query('[*].{name: name, enabled: enabled, description: description}') }}"
+    trunk_config: "{{ interface_config | json_query('[?trunk].{name: name, trunk: trunk}') }}"
+    access_config: "{{ interface_config | json_query('[?access].{name: name, access: access}') }}"
+    layer3_config: "{{ interface_config | json_query('[?ip_address].{name: name, ipv4: [{address: ip_address}]}') }}"
+    portchannel_config: "{{ interface_config | json_query('[?members].{name: name, members: members}') }}"
+
+- name: Configure VLANs
+  arista.eos.eos_vlans:
+    config: "{{ vlans }}"
+    state: merged
+  when: vlans is defined
+
+- name: Configure Interface Settings
+  arista.eos.eos_interfaces:
+    config: "{{ port_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - port_config | length
+
+- name: Configure L3 Interfaces
+  arista.eos.eos_l3_interfaces:
+    config: "{{ layer3_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - layer3_config | length
+
+#- name: Configure Port Channels
+#  arista.eos.eos_lag_interfaces:
+#    config: "{{ portchannel_config }}"
+#    state: replaced
+#  when:
+#    - interface_config is defined
+#    - portchannel_config | length
+
+- name: Configure VLANs on Trunk Interfaces
+  arista.eos.eos_l2_interfaces:
+    config: "{{ trunk_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - trunk_config | length
+
+- name: Configure VLANs on Access Interfaces
+  arista.eos.eos_l2_interfaces:
+    config: "{{ access_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - access_config | length
+
+- name: Get current MLAG Info
+  arista.eos.eos_command:
+    commands: "show mlag | json"
+  register: mlag_output
+
+- name: Set MLAG Facts
+  set_fact:
+    arista.eos.eos_mlag_domain: "{{ mlag_output.stdout[0].domainId }}"
+  when: mlag_output.stdout[0].domainId is defined
+
+- name: Get random MLAG Domain ID
+  set_fact:
+    arista.eos.eos_mlag_domain: "{{ 1000 | random }}"
+    cacheable: true
+  when:
+    - ha_primary is defined
+    - arista.eos.eos_mlag_domain is not defined
+
+- name: Create MLAG Config
+  arista.eos.eos_config:
+    src: mlag.j2
+  when:
+    - ha_peer is defined
+    - mlag_ip is defined

@@ -1,0 +1,15 @@
+- name: Configure Admin user
+  cisco.ios.ios_user:
+    configured_password: "{{ global_pass }}"
+    name: admin
+    purge: false
+    state: present
+    privilege: 15
+
+- name: Configure Network Admins
+  cisco.ios.ios_user:
+    configured_password: "{{ global_pass }}"
+    name: amack
+    purge: false
+    state: present
+    privilege: 15

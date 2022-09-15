@@ -1,0 +1,20 @@
+- name: Set logging levels
+  f5networks.f5_modules.bigip_sys_daemon_log_tmm:
+    arp_log_level: informational
+    http_log_level: error
+    ip_log_level: warning
+    irule_log_level: informational
+    layer4_log_level: informational
+    net_log_level: informational
+    ssl_log_level: informational
+    pva_log_level: informational
+    provider: "{{ provider }}"
+  delegate_to: localhost
+
+- name: Configure F5 Syslog
+  f5networks.f5_modules.bigip_remote_syslog:
+    remote_host: "{{ item }}"
+    remote_port: "{{ syslog_port }}"
+    provider: "{{ provider }}"
+  delegate_to: localhost
+  loop: "{{ syslog_servers }}"

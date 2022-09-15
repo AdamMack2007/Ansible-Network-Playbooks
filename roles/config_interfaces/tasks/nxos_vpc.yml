@@ -1,0 +1,54 @@
+- name: Get random VPC Domain ID
+  set_fact:
+    nxos_vpc_domain: "{{ 1000 | random }}"
+    cacheable: true
+  when:
+    - ha_primary
+    - nxos_vpc_domain is not defined
+
+- name: Set VPC Domain ID for Secondary Unit
+  set_fact:
+    nxos_vpc_domain: "{{ hostvars[ha_peer]['nxos_vpc_domain'] }}"
+    cacheable: true
+  when:
+    - not ha_primary
+    - not nxos_vpc_domain
+    - hostvars[ha_peer]['nxos_vpc_domain']
+
+- name: Create VPC Domain Primary
+  cisco.nxos.nxos_vpc:
+    domain: "{{ nxos_vpc_domain }}"
+    role_priority: "1"
+    peer_gw: true
+    pkl_src: "{{ ansible_host }}"
+    pkl_dest: "{{ hostvars[ha_peer]['ansible_host'] }}"
+    auto_recovery: true
+  when: ha_primary
+
+- name: Create VPC Domain Secondary
+  cisco.nxos.nxos_vpc:
+    domain: "{{ nxos_vpc_domain }}"
+    role_priority: "2"
+    peer_gw: true
+    pkl_src: "{{ ansible_host }}"
+    pkl_dest: "{{ hostvars[ha_peer]['ansible_host'] }}"
+    auto_recovery: true
+  when: not ha_primary
+
+- name: Configure VPC Peer-Link Interfaces
+  cisco.nxos.nxos_vpc_interface:
+    state: present
+    portchannel: "{{ item['portchannel_id'] }}"
+    peer_link: yes
+  loop: "{{ interface_config }}"
+  when:
+    - item['vpc_peerlink']
+
+- name: Configure VPC Interfaces
+  cisco.nxos.nxos_vpc_interface:
+    state: present
+    portchannel: "{{ item['portchannel_id'] }}"
+    vpc: "{{ item['vpc'] }}"
+  loop: "{{ interface_config }}"
+  when:
+    - item['vpc']

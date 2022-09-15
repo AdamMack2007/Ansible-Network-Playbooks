@@ -1,0 +1,7 @@
+---
+- name: Configure Interfaces
+  hosts: all
+  gather_facts: no
+
+  roles:
+    - config_interfaces

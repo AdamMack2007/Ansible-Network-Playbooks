@@ -1,0 +1,84 @@
+- name: Set Interface Dictionary Facts
+  set_fact:
+    port_config: "{{ interface_config | json_query('[*].{name: name, enabled: enabled, description: description }') }}"
+    mode_config: "{{ interface_config | json_query('[?ip_address].{name: name, enabled: enabled, description: description, mode: mode }') }}"
+    trunk_config: "{{ interface_config | json_query('[?trunk].{name: name, trunk: trunk}') }}"
+    access_config: "{{ interface_config | json_query('[?access].{name: name, access: access}') }}"
+    layer3_config: "{{ interface_config | json_query('[?ip_address].{name: name, ipv4: [{address: ip_address}]}') }}"
+    portchannel_config: "{{ interface_config | json_query('[?members].{name: name, members: members}') }}"
+    vpc_config: "{{ interface_config | json_query('[?members].{name: name, vpc: vpc}') }}"
+
+- name: Configure VLANs
+  cisco.nxos.nxos_vlans:
+    config: "{{ vlans }}"
+    state: replaced
+  when: vlans is defined
+
+- name: Configure Interface Settings
+  cisco.nxos.nxos_interfaces:
+    config: "{{ port_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - port_config | length
+
+- name: Configure L3 Interface Mode
+  cisco.nxos.nxos_interfaces:
+    config: "{{ mode_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - mode_config | length
+
+- name: Configure L3 Interfaces
+  cisco.nxos.nxos_l3_interfaces:
+    config: "{{ layer3_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - layer3_config | length
+
+- name: Configure Port Channels
+  cisco.nxos.nxos_lag_interfaces:
+    config: "{{ portchannel_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - portchannel_config | length
+
+- name: Configure VLANs on Trunk Interfaces
+  cisco.nxos.nxos_l2_interfaces:
+    config: "{{ trunk_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - trunk_config | length
+
+- name: Configure VLANs on Access Interfaces
+  cisco.nxos.nxos_l2_interfaces:
+    config: "{{ access_config }}"
+    state: replaced
+  when:
+    - interface_config is defined
+    - access_config | length
+
+- name: Get VPC Data
+  cisco.nxos.nxos_command:
+    commands:
+      - command: sh run | i 'vpc domain'
+        output: json
+    timeout: 30
+  register: vpc_data
+  when: nxos_vpc_domain is not defined
+
+- name: Set VPC Data as Fact if it exists
+  set_fact:
+    nxos_vpc_domain: "{{ vpc_data['stdout_lines'][0] }}"
+  when:
+    - nxos_vpc_domain is not defined
+    - vpc_data['stdout_lines'][0][0]
+
+- name: Build VPC Configuration
+  include_tasks: "{{ ansible_network_os }}_vpc.yml"
+  when:
+    - ha_peer is defined

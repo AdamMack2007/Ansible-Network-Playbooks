@@ -1,0 +1,50 @@
+default:
+  image:
+    name: redhat/ubi8
+    entrypoint: [""]
+stages:
+  - deploy-aaa
+  - deploy-dns
+  - deploy-ntp
+  - deploy-snmp
+  - deploy-syslog
+
+deploy-aaa:
+  stage: deploy-aaa
+  script:
+    - 'curl -kX POST https://192.168.6.100:443/api/v2/job_templates/18/launch/ -H "Authorization: Bearer $TOWER_TOKEN"'
+  only:
+    changes:
+      - "roles/config_aaa/**/*"
+
+deploy-dns:
+  stage: deploy-dns
+  script:
+    - 'curl -kX POST https://192.168.6.100:443/api/v2/job_templates/41/launch/ -H "Authorization: Bearer $TOWER_TOKEN"'
+  only:
+    changes:
+      - "roles/config_dns/**/*"
+
+deploy-ntp:
+  stage: deploy-ntp
+  script:
+    - 'curl -kX POST https://192.168.6.100:443/api/v2/job_templates/17/launch/ -H "Authorization: Bearer $TOWER_TOKEN"'
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_TAG == 'ntp'
+
+deploy-snmp:
+  stage: deploy-snmp
+  script:
+    - 'curl -kX POST https://192.168.6.100:443/api/v2/job_templates/29/launch/ -H "Authorization: Bearer $TOWER_TOKEN"'
+  only:
+    changes:
+      - "roles/config_snmp/**/*"
+
+deploy-syslog:
+  stage: deploy-syslog
+  script:
+    - 'curl -kX POST https://192.168.6.100:443/api/v2/job_templates/23/launch/ -H "Authorization: Bearer $TOWER_TOKEN"'
+  only:
+    changes:
+      - "roles/config_syslog/**/*"

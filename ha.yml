@@ -1,0 +1,7 @@
+---
+- name: Configure HA on devices
+  hosts: all
+  gather_facts: no
+
+  roles:
+    - config_ha

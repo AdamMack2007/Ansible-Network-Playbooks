@@ -1,0 +1,44 @@
+---
+- name: Create F5 VIP
+  block:
+    - name: Get Next Available IP
+      netbox.netbox.netbox_ip_address:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        data:
+          prefix: "{{ network_subnets[network_environment]['vip_subnet'] }}"
+        state: new
+      register: new_private_ip
+      delegate_to: localhost
+      run_once: true
+
+    - name: Set IP as Fact
+      set_fact:
+        vip_private_ip: "{{ new_private_ip.ip_address.address | ipaddr('address') }}"
+      when: private_ip == ''
+
+    - name: Set App Dictionary as Fact
+      set_fact:
+        app_dict: "{{ app_settings[network_environment][application_type] }}"
+
+    - name: Create F5 VIP
+      f5networks.f5_modules.bigip_virtual_server:
+        state: present
+        name: "{{ f5_vip_name }}"
+        destination: "{{ vip_private_ip }}"
+        port: "443"
+        pool: "{{ app_dict.pool }}"
+        profiles: "{{ app_dict.f5_profiles }}"
+        provider: "{{ provider }}"
+      delegate_to: localhost
+      when: ansible_network_os == 'f5'
+  rescue:
+    - name: Remove IP from IPAM
+      netbox.netbox.netbox_ip_address:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        data:
+          address: "{{ new_private_ip.ip_address.address }}"
+        state: absent
+      delegate_to: localhost
+      run_once: true

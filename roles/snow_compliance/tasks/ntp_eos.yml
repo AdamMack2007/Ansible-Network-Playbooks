@@ -1,0 +1,21 @@
+- name: Get Arista NTP Status
+  import_role:
+    name: config_ntp
+    tasks_from: eos
+  check_mode: true
+
+- name: Set Arista Compliance Facts
+  set_fact:
+    problem_description: "The following changes need to be made:\n\n***********************\n{{ eos_ntp_status.commands | join('\n') }}\n***********************"
+    short_description: "{{ inventory_hostname | upper }} ntp configuration out of compliance"
+    ntp_compliant: "No"
+  when: (ansible_network_os == 'eos' and eos_ntp_status.changed)
+
+- name: Create SNOW Problem Ticket
+  include_tasks:
+    file: snow_ticket.yml
+  when: eos_ntp_status.changed
+
+- name: Update SNOW CMDB
+  include_tasks:
+    file: snow_cmdb.yml

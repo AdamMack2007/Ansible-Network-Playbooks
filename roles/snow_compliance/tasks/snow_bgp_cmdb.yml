@@ -1,0 +1,26 @@
+- name: Retrieve all configuration items
+  servicenow.itsm.configuration_item_info:
+    instance: "{{ instance }}"
+    sys_class_name: u_cmdb_ci_network_devices
+  register: result
+  run_once: true
+  delegate_to: localhost
+
+- name: Set CI Facts
+  set_fact:
+    device_list: "{{ result.records | json_query('[*].name') }}"
+    device_info: "{{ result.records | json_query(device_info_query) }}"
+  delegate_to: localhost
+
+- name: Update CMDB BGP Entry
+  servicenow.itsm.configuration_item:
+    instance: "{{ instance }}"
+    name: "{{ inventory_hostname }}"
+    sys_class_name: u_cmdb_ci_network_devices
+    sys_id: "{{ device_info[0].sys_id | default(omit) }}"
+    other:
+      u_bgp_compliant: "{{ bgp_compliant | default('Yes') }}"
+  when:
+    - inventory_hostname in device_list
+    - device_info[0].sys_id|length
+  delegate_to: localhost

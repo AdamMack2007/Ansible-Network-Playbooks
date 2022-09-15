@@ -1,0 +1,8 @@
+---
+- name: Collect Network Facts
+  hosts: all
+  gather_facts: no
+  strategy: free
+
+  roles:
+    - facts

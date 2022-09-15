@@ -1,0 +1,3 @@
+- name: Gather Arista facts
+  arista.eos.eos_facts:
+    gather_subset: all

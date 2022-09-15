@@ -1,0 +1,16 @@
+snmp-server enable
+snmp-server group {{ snmp_group }} v3 auth
+snmp-server user {{ snmp_user }} {{ snmp_group }} v3 auth sha {{ snmp_password }}
+snmp-server enable traps snmp authentication linkup linkdown coldstart warmstart
+snmp-server enable traps ipsec start stop
+snmp-server enable traps remote-access session-threshold-exceeded 
+{% for server in snmp_servers %}
+snmp-server host management {{ server }} version 3 {{ snmp_user }}
+{% endfor %}
+
+{% set existing_snmp = current_snmp.stdout[0] | regex_findall('\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b') %}
+{% for server in existing_snmp %}
+{% if server not in snmp_servers %}
+no snmp-server host management {{ server }}
+{% endif %}
+{% endfor %}

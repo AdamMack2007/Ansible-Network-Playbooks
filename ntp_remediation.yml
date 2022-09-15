@@ -1,0 +1,11 @@
+---
+- name: Configure NTP
+  hosts: all
+  connection: httpapi
+  gather_facts: no
+
+  tasks:
+    - name: Include NTP Role
+      import_role:
+        name: snow_compliance
+        tasks_from: ntp_resolve.yml

@@ -1,0 +1,6 @@
+---
+- name: Gather NXOS Facts
+  cisco.nxos.nxos_facts:
+    gather_subset:
+      - hardware
+      - config

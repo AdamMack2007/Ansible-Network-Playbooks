@@ -1,0 +1,13 @@
+- name: Configure Admin user
+  cisco.nxos.nxos_user:
+    configured_password: "{{ global_pass }}"
+    name: admin
+    state: present
+    purge: false
+
+- name: Configure Network Admins
+  cisco.nxos.nxos_user:
+    configured_password: "{{ global_pass }}"
+    name: amack
+    state: present
+    purge: false

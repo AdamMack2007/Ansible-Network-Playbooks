@@ -1,0 +1,21 @@
+---
+management_acl:
+  name: management_acl
+  source: 192.168.6.0/24
+
+aci_url: sandboxapicdc.cisco.com
+aci_username: admin
+aci_password: "!v3G@!4@Y"
+
+ntp_servers:
+  - 216.239.35.0
+
+syslog_servers:
+  - 192.168.10.133
+
+syslog_port: 5514
+
+ntp_config:
+  servers:
+    - server: 216.239.35.1
+      vrf: "{{ ntp_vrf | default(omit) }}"

@@ -1,0 +1,4 @@
+---
+# defaults file for config_credentials
+purge_users: yes
+primary_user: "admin"

@@ -1,0 +1,96 @@
+{%- set vpn_remotenet = vpn_remotenet.split('\n') %}
+{% set vpn_localnet = vpn_localnet.split('\n') %}
+
+{% if vpn_remotenet | length <= 1 %}
+{% set remote_type = 'object' %}
+object network {{ vpn_remote_name }}
+{% for ip in vpn_remotenet %}
+{% if '255.255.' in ip %}
+ subnet {{ ip }}
+{% else %}
+  host {{ ip }}
+{% endif %}
+{% endfor %}
+{% else %}
+{% set remote_type = 'object-group' %}
+object-group net {{ vpn_remote_name }}
+{% for ip in vpn_remotenet %}
+{% if '255.255.' in ip %}
+  network-object {{ ip }}
+{% else %}
+  network-object host {{ ip }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+
+{% if vpn_localnet | length <= 1 %}
+{% set local_type = 'object' %}
+object network {{ vpn_local_name }}
+{% for ip in vpn_localnet %}
+{% if '255.255.' in ip %}
+ subnet {{ ip }}
+{% else %}
+  host {{ ip }}
+{% endif %}
+{% endfor %}
+{% else %}
+{% set local_type = 'object-group' %}
+object-group net {{ vpn_local_name }}
+{% for ip in vpn_localnet %}
+{% if '255.255.' in ip %}
+  network-object {{ ip }}
+{% else %}
+  network-object host {{ ip }}
+{% endif %}
+{% endfor %}
+access-list {{ vpn_acl_name }} extended permit ip {{ local_type }} {{ vpn_local_name }} {{ remote_type }} {{ vpn_remote_name }} log 
+{% endif -%}
+
+
+nat (inside,outside) source static {{ vpn_local_name }} {{ vpn_local_name }} destination static {{ vpn_remote_name }} {{ vpn_remote_name }} route-lookup
+
+crypto ikev2 policy 10
+ encryption aes-256
+ integrity sha512
+ group 19
+ prf sha256   
+ lifetime seconds 86400
+
+crypto ikev2 policy 20
+ encryption aes-256
+ integrity sha256
+ group 14
+ prf sha256   
+ lifetime seconds 86400
+
+crypto ikev2 policy 30
+ encryption aes-256
+ integrity sha
+ group 5
+ prf sha256   
+ lifetime seconds 86400
+
+crypto ikev2 enable outside
+
+tunnel-group {{ vpn_peer }} type ipsec-l2l
+tunnel-group {{ vpn_peer }} ipsec-attributes
+ikev2 remote-authentication pre-shared-key {{ vpn_psk }}
+ikev2 local-authentication pre-shared-key {{ vpn_psk }}
+
+crypto ipsec ikev2 ipsec-proposal P2_AES256_SHA128
+ protocol esp encryption aes-256
+ protocol esp integrity sha-1
+
+crypto ipsec ikev2 ipsec-proposal P2_AES256_SHA256
+ protocol esp encryption aes-256
+ protocol esp integrity sha-256
+
+crypto ipsec ikev2 ipsec-proposal P2_AES256_SHA512
+ protocol esp encryption aes-256
+ protocol esp integrity sha-512
+
+crypto map CRYPTO-MAP 1 match address {{ vpn_acl_name }}
+crypto map CRYPTO-MAP 1 set peer {{ vpn_peer }}
+crypto map CRYPTO-MAP 1 set ikev2 ipsec-proposal {{ vpn_phase_2 }}
+crypto map CRYPTO-MAP interface outside

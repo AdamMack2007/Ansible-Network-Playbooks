@@ -1,0 +1,55 @@
+- name: Backup Config
+  cisco.asa.asa_config:
+    save: yes
+  register: config_backup
+
+- name: Get ASA HA State
+  cisco.asa.asa_command:
+    commands:
+      - "show failover"
+  register: asa_failover
+
+- name: Set HA State as Fact
+  set_fact:
+    asa_ha_state: "{{ asa_failover.stdout[0] | parse_cli_textfsm('textfsm/asa_failover.textfsm') }}"
+  when: "'Failover On ' in asa_failover.stdout_lines[0]"
+
+- name: ASA HA Device Upgrade
+  block:
+    - name: Enable SCP on ASA.
+      # this task is not needed if SCP is not used to transport .bin file to firewall.
+      cisco.asa.asa_config:
+        lines:
+          - ssh scopy enable
+      save: yes
+
+    - name: Copying file to ASA.
+      cisco.asa.asa_command:
+        commands:
+          # currently uses TFTP but can be modufied to use SCP instead.
+          - "copy /noconfirm tftp://{{ tftp_server }}{{ path_to_file }}{{ file_name }} disk0:/{{ file_name }}"
+      register: file_transfer
+
+    - name: Verifying software image integrity.
+      cisco.asa.asa_command:
+        commands:
+          - "verify /md5 disk0:{{ file_name }} {{ md5_hash }}"
+        wait_for: result[0] contains "Verified" # Ensure MD5 hash is verified.
+
+    - name: Updating boot image.
+      cisco.asa.asa_config:
+        lines:
+          - "boot system disk0:/{{ file_name }}"
+      save: yes # save running config to startup config
+
+    - name: Check boot variable.
+      cisco.asa.asa_command:
+        commands:
+          - show bootvar
+      register: bootvar
+    - debug: var=bootvar.stdout[0]
+
+    - name: Reloading the system
+      cisco.asa.asa_command:
+        commands:
+          - reload noconfirm reason "Upgrading Firewall."

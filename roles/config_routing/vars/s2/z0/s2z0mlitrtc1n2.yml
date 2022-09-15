@@ -1,0 +1,54 @@
+loopback_interfaces:
+  - name: loopback0
+    ip: 10.32.8.101/32
+
+################## OSPF ##################
+
+ospf_process_id: 1
+
+ospf_router_id: 10.32.8.101
+
+ospf_key: ABC123
+
+ospf_area:
+  - network: 10.32.2.0/29
+    area: 0
+  - network: 10.32.8.101/32
+    area: 0
+
+ospf_interfaces:
+  - Port-channel10.200
+
+################## BGP ##################
+
+bgp_as: 65010
+
+bgp_router_id: 10.32.8.101
+
+bgp_neighbors:
+  - neighbor: 10.32.0.100
+    remote_as: 65010
+    password: Changeme123
+    description: S2Z0MLPIRTC1N1
+    update_source: loopback0
+  - neighbor: 10.32.0.101
+    remote_as: 65010
+    password: Changeme123
+    description: S2Z0MLPIRTC1N2
+    update_source: loopback0
+  - neighbor: 10.32.8.101
+    remote_as: 65010
+    password: Changeme123
+    description: S2Z0MLITRTC1N1
+    update_source: loopback0
+  - neighbor: 10.32.8.1
+    remote_as: 65000
+    password: Changeme123
+
+bgp_networks:
+  - 10.32.8.0/24
+
+bgp_agg_addresses:
+  - 10.32.8.0/24
+  - 10.32.0.0/22
+  - 10.32.4.0/22

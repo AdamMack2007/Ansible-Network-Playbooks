@@ -1,0 +1,14 @@
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Get all Tenants
+      cisco.aci.aci_tenant:
+        host: "{{ aci_url }}"
+        username: "{{ aci_username }}"
+        password: "{{ aci_password }}"
+        state: query
+        validate_certs: no
+      delegate_to: localhost
+      register: query_result

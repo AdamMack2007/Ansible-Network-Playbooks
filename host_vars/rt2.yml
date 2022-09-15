@@ -1,0 +1,2 @@
+ntp_vrf: management
+syslog_vrf: management

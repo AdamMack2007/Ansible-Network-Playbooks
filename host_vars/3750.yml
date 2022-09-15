@@ -1,0 +1,165 @@
+vlans:
+  - name: MackNet
+    vlan_id: 6
+  - name: MackNet-Lab
+    vlan_id: 10
+
+interface_config:
+  - name: GigabitEthernet1/0/1
+    enabled: True
+
+  - name: GigabitEthernet1/0/2
+    enabled: True
+
+  - name: GigabitEthernet1/0/3
+    enabled: True
+
+  - name: GigabitEthernet1/0/4
+    enabled: True
+
+  - name: GigabitEthernet1/0/5
+    enabled: True
+
+  - name: GigabitEthernet1/0/6
+    enabled: True
+
+  - name: GigabitEthernet1/0/7
+    enabled: False
+    description: Hallway AP
+    mode: layer2
+    access:
+      vlan: 6
+
+  - name: GigabitEthernet1/0/8
+    enabled: True
+    description: Outdoor AP
+    mode: layer2
+    trunk:
+      encapsulation: dot1q
+      allowed_vlans:
+        - "6"
+
+  - name: GigabitEthernet1/0/9
+    enabled: True
+    description: PiHole
+    mode: layer2
+    access:
+      vlan: 6
+
+  - name: GigabitEthernet1/0/10
+    enabled: True
+    description: TV Port 1
+    mode: layer2
+    access:
+      vlan: 6
+
+  - name: GigabitEthernet1/0/11
+    enabled: True
+    description: TV Port 2
+    mode: layer2
+    access:
+      vlan: 6
+
+  - name: GigabitEthernet1/0/12
+    enabled: True
+    description: TV Port 3
+    mode: layer2
+    access:
+      vlan: 6
+
+  - name: GigabitEthernet1/0/13
+    enabled: True
+    description: Netgear Orbi
+    mode: layer2
+    access:
+      vlan: 6
+
+  - name: GigabitEthernet1/0/14
+    enabled: False
+
+  - name: GigabitEthernet1/0/15
+    enabled: False
+
+  - name: GigabitEthernet1/0/16
+    enabled: False
+
+  - name: GigabitEthernet1/0/17
+    enabled: False
+
+  - name: GigabitEthernet1/0/18
+    enabled: False
+
+  - name: GigabitEthernet1/0/19
+    enabled: False
+
+  - name: GigabitEthernet1/0/20
+    enabled: False
+
+  - name: GigabitEthernet1/0/21
+    enabled: False
+
+  - name: GigabitEthernet1/0/22
+    enabled: False
+
+  - name: GigabitEthernet1/0/23
+    enabled: False
+
+  - name: GigabitEthernet1/0/24
+    enabled: False
+
+  - name: GigabitEthernet1/0/25
+    enabled: False
+
+  - name: GigabitEthernet1/0/26
+    enabled: False
+
+  - name: GigabitEthernet1/0/27
+    enabled: False
+
+  - name: GigabitEthernet1/0/28
+    enabled: False
+
+  - name: port-channel1
+    description: Palo Alto Eth 2 and 3
+    enabled: True
+    mode: layer2
+    portchannel_id: 1
+    trunk:
+      encapsulation: dot1q
+      allowed_vlans:
+        - "6"
+        - "10"
+    members:
+      - member: GigabitEthernet1/0/1
+        mode: active
+      - member: GigabitEthernet1/0/2
+        mode: active
+
+  - name: port-channel2
+    description: Dell R630
+    enabled: True
+    mode: layer2
+    portchannel_id: 2
+    trunk:
+      encapsulation: dot1q
+      allowed_vlans:
+        - "10"
+      native_vlan: 6
+    members:
+      - member: GigabitEthernet1/0/3
+        mode: active
+      - member: GigabitEthernet1/0/4
+        mode: active
+
+  - name: port-channel3
+    description: Synology NAS
+    enabled: True
+    mode: layer2
+    portchannel_id: 3
+    access:
+      vlan: 6
+    members:
+      - member: GigabitEthernet1/0/5
+        mode: active
+      - member: GigabitEthernet1/0/6
+        mode: active

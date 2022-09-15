@@ -1,0 +1,28 @@
+- name: Remove Public SNMP community
+  f5networks.f5_modules.bigip_snmp_community:
+    name: public
+    source: default
+    state: absent
+    provider: "{{ provider }}"
+  delegate_to: localhost
+
+- name: Create SNMPv3 community
+  f5networks.f5_modules.bigip_snmp_community:
+    name: "{{ snmp_community }}"
+    snmp_username: "{{ snmp_user }}"
+    snmp_auth_protocol: sha
+    snmp_auth_password: "{{ snmp_password }}"
+    snmp_privacy_protocol: aes
+    snmp_privacy_password: "{{ snmp_password }}"
+    version: v3
+    oid: "0.1"
+    access: ro
+    state: present
+    provider: "{{ provider }}"
+  delegate_to: localhost
+
+- name: Configure Allowed SNMP Addresses
+  f5networks.f5_modules.bigip_snmp:
+    allowed_addresses: "{{ snmp_servers }}"
+    provider: "{{ provider }}"
+  delegate_to: localhost

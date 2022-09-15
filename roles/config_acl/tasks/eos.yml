@@ -1,0 +1,15 @@
+- name: Parse ACLs
+  arista.eos.eos_acls:
+    state: parsed
+    running_config: "{{ mgmt_acls }}"
+  register: eos_acls
+  when: mgmt_acls is defined
+
+- name: Configure ACLs
+  arista.eos.eos_acls:
+    state: replaced
+    config: "{{ eos_acls.parsed }}"
+
+- name: Save Configuration
+  arista.eos.eos_config:
+    save_when: changed

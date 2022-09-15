@@ -1,0 +1,12 @@
+- name: Get Existing ASA NTP Servers
+  cisco.asa.asa_command:
+    commands:
+      - "show run | i ntp server"
+  register: current_ntp
+
+- name: Configure ASA NTP Servers
+  cisco.asa.asa_config:
+    src: templates/asa_ntp.j2
+    save: yes
+  register: asa_result
+  changed_when: asa_result.updates is defined

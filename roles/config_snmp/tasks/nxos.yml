@@ -1,0 +1,15 @@
+---
+- name: Create SNMP Users
+  cisco.nxos.nxos_snmp_user:
+    user: snmp_user
+    group: network-operator
+    authentication: md5
+    pwd: snmp_password
+  loop: "{{ snmp_servers }}"
+
+- name: Create SNMP Hosts
+  cisco.nxos.nxos_snmp_host:
+    snmp_host: "{{ item }}"
+    community: "{{ snmp_group }}"
+    state: present
+  loop: "{{ snmp_servers }}"

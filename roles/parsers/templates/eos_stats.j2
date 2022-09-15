@@ -1,0 +1,28 @@
+### {{ inventory_hostname }}
+
+
+####  Interfaces
+|     Interface      | Description |   Interface Status   | Line Protocol Status |     MTU     |   Inbound Errors  |  Outbound Errors  | 
+| :----------------: | :---------: | :------------------: | :------------------: | :----------:| :----------------:| :----------------:|
+{% for interface,data in interfaces['interfaces'].items() | sort %}
+{% if data.interfaceCounters is defined %}
+| {{ interface }} | {{ data.description }} | {{ data.interfaceStatus }} | {{ data.lineProtocolStatus }} | {{ data.mtu }} | {{ data.interfaceCounters.totalInErrors }} | {{ data.interfaceCounters.totalOutErrors }} | 
+{% endif %}
+{% endfor %}
+
+#### BGP
+|     VRF            |     Peer       | Description |   ASN  |  Peer State   |  Prefix Received  |  Prefix Accepted |
+| :----------------: | :------------: | :---------: | :-----:| :------------:| :----------------:| :---------------:|
+{% for vrf,data in bgp['vrfs'].items() %}
+{% for peer,stats in data['peers'].items() %}
+| {{ vrf }} | {{ peer }} | {{ stats.description }} | {{ stats.asn }} | {{ stats.peerState }} | {{ stats.prefixReceived }} | {{ stats.prefixAccepted }} |
+{% endfor %}
+{% endfor %}
+
+{% if mlag_stats.domainId is defined %}
+#### MLAG
+
+|     MLAG Domain    |   State   | PeerLink Status   | LocalInt Status  |  Peer IP  |
+| :----------------: | :-------: | :---------------: | :--------------: | :--------:| 
+| {{ mlag_stats.domainId }} | {% if mlag_stats.state =='active' %}:white_check_mark:{% else %}:no_entry:{% endif %} | {% if mlag_stats.peerLinkStatus =='up' %}:white_check_mark:{% else %}:no_entry:{% endif %} | {% if mlag_stats.localIntfStatus =='up' %}:white_check_mark:{% else %}:no_entry:{% endif %} | {{ mlag_stats.peerAddress }} |
+{% endif %}

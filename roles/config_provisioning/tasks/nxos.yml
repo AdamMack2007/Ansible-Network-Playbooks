@@ -1,0 +1,19 @@
+- name: Set NXOS Hostname
+  cisco.nxos.nxos_system:
+    hostname: "{{ inventory_hostname }}"
+
+- name: Enable NXOS Features
+  cisco.nxos.nxos_feature:
+    feature: "{{ item }}"
+    state: enabled
+  loop: "{{ nxos_features }}"
+
+- name: Create WR CLI Alias
+  cisco.nxos.nxos_config:
+    lines: cli alias name wr copy run start
+
+- name: Configure NXOS Banner
+  cisco.nxos.nxos_banner:
+    banner: motd
+    text: "{{ lookup('file', 'files/banner.txt') }}"
+    state: present
